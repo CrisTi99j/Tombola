@@ -232,14 +232,13 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 
   <!-- Cod participare -->
   <div class="card">
-    <h3>Cod de Participare</h3>
-    <div class="cod-box">
-      <div class="cod-val" id="codDisplay">——</div>
-      <div class="cod-lbl">Cod curent activ</div>
-      <div class="cod-hint" id="codUsedHint"></div>
-    </div>
+    <h3>Coduri de Participare</h3>
     <button class="btn btn-gold" onclick="generateCode()" style="margin-top:0;">🔄 GENEREAZĂ COD NOU</button>
-    <p style="font-size:11px;color:var(--muted);margin-top:10px;">Postează codul pe Story. La fiecare client nou, generează un cod nou. Un cod poate fi folosit o singură dată.</p>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;margin-bottom:12px;">Generează câte un cod pentru fiecare client. Fiecare cod e folosit o singură dată.</p>
+    <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Coduri active (<span id="activeCodesCount">0</span>)</div>
+    <div id="activeCodesList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+    <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:10px;margin-bottom:6px;">Coduri folosite (<span id="usedCodesCount">0</span>)</div>
+    <div id="usedCodesList" style="font-size:12px;color:var(--muted);"></div>
   </div>
 
   <!-- Extragere -->
@@ -287,7 +286,7 @@ function defaultState() {
     takenNumbers: [],
     winners: [],        // {name, number, ts}
     usedCodes: [],      // coduri deja folosite
-    currentCode: null,
+    activeCodes: [],    // coduri active nefolosite
     locked: false,
     maxNumbers: 100
   };
@@ -344,8 +343,22 @@ document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key==
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random()*chars.length)];
-  state.currentCode = code;
+  do {
+    code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random()*chars.length)];
+  } while (state.activeCodes.includes(code) || state.usedCodes.includes(code));
+  state.activeCodes.push(code);
+  save();
+  renderAdmin();
+  // copy to clipboard
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).catch(()=>{});
+  }
+  alert('Cod generat: ' + code + '\n\nTrimite acest cod clientului!');
+}
+
+function deleteCode(code) {
+  state.activeCodes = state.activeCodes.filter(c => c !== code);
   save();
   renderAdmin();
 }
@@ -357,16 +370,16 @@ function verifyCode() {
   if (!name) { showClientMsg('Introdu-ți numele!','error'); return; }
   if (!code) { showClientMsg('Introdu codul primit de la frizer!','error'); return; }
   if (state.locked) { showClientMsg('Înregistrările sunt închise momentan.','error'); return; }
-  if (!state.currentCode) { showClientMsg('Nu există niciun cod activ. Cere un cod de la frizer.','error'); return; }
+  if (state.activeCodes.length === 0) { showClientMsg('Nu există niciun cod activ. Cere un cod de la frizer.','error'); return; }
   if (state.usedCodes.includes(code)) { showClientMsg('Acest cod a fost deja folosit. Cere un cod nou de la frizer.','error'); return; }
-  if (code !== state.currentCode) { showClientMsg('Cod incorect! Verifică codul primit de la frizer.','error'); return; }
+  if (!state.activeCodes.includes(code)) { showClientMsg('Cod incorect! Verifică codul primit de la frizer.','error'); return; }
 
   // COD VALID
   codeVerified = true;
   verifiedName = name;
-  // marchează codul ca folosit
+  // muta codul din active in used
+  state.activeCodes = state.activeCodes.filter(c => c !== code);
   state.usedCodes.push(code);
-  state.currentCode = null; // cod single-use
   save();
 
   showClientMsg('✓ Cod valid! Acum alege numărul tău norocos.','success');
@@ -451,16 +464,25 @@ function renderAdmin() {
     ? 'Înregistrările sunt <strong style="color:#e74c3c">ÎNCHISE</strong>'
     : 'Înregistrările sunt <strong style="color:#2ecc71">DESCHISE</strong>';
 
-  // cod
-  document.getElementById('codDisplay').textContent = state.currentCode || '——';
-  const hint = document.getElementById('codUsedHint');
-  if (state.currentCode) {
-    hint.textContent = 'Postează acest cod pe Story!';
-    hint.style.color = 'var(--gold)';
+  // coduri active
+  const acEl = document.getElementById('activeCodesList');
+  const acCount = document.getElementById('activeCodesCount');
+  const ucEl = document.getElementById('usedCodesList');
+  const ucCount = document.getElementById('usedCodesCount');
+  acCount.textContent = state.activeCodes.length;
+  ucCount.textContent = state.usedCodes.length;
+  if (state.activeCodes.length === 0) {
+    acEl.innerHTML = '<span style="font-size:12px;color:var(--muted);">Niciun cod activ.</span>';
   } else {
-    hint.textContent = 'Codul a fost folosit. Generează unul nou.';
-    hint.style.color = 'var(--muted)';
+    acEl.innerHTML = state.activeCodes.map(c =>
+      '<div style="display:flex;align-items:center;gap:6px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.35);border-radius:8px;padding:6px 10px;">' +
+      '<span style='font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold)'>' + c + '</span>' +
+      '<button onclick="deleteCode('' + c + '')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 2px;" title="Șterge cod">✕</button>' +
+      '</div>'
+    ).join('');
   }
+  ucEl.innerHTML = state.usedCodes.length === 0 ? 'Niciun cod folosit încă.' :
+    state.usedCodes.map(c => '<span style="margin-right:8px;text-decoration:line-through;">' + c + '</span>').join('');
 
   // winners history
   const hs = document.getElementById('historySection');
