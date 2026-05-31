@@ -690,40 +690,54 @@ function startTimer() {
 function loadAndRenderClient() {
   document.getElementById('clientLoading').style.display = 'block';
   document.getElementById('clientContent').style.display = 'none';
+  showClientMsg('', '');
   loadState(function() {
     document.getElementById('clientLoading').style.display = 'none';
     document.getElementById('clientContent').style.display = 'block';
     if (state.timerEnd) { startTimer(); } else { document.getElementById('timerSection').style.display = 'none'; }
+
+    // Show/hide code section
     var noCode = state.requireCode === false;
     var codeSection = document.getElementById('codeSection');
     if (codeSection) codeSection.style.display = noCode ? 'none' : 'block';
 
-    // Check if user already registered
+    // Check localStorage for existing registration
     var saved = localStorage.getItem('myTombolaNum');
     if (saved) {
       try {
         var data = JSON.parse(saved);
-        // Show their number directly
-        var s1 = document.getElementById('step1');
-        var s2 = document.getElementById('step2');
-        var infoBox = document.querySelector('#clientContent .info-box');
-        if (s1) s1.style.display = 'none';
-        if (s2) s2.style.display = 'none';
-        if (infoBox) infoBox.style.display = 'none';
-        var existing = document.getElementById('successCard');
-        if (!existing) {
-          var card = document.createElement('div');
-          card.id = 'successCard';
-          card.style.cssText = 'background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:28px 16px;text-align:center;margin-bottom:14px;';
-          card.innerHTML =
-            '<div style="font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Numarul tau</div>' +
-            '<div style="font-family:Bebas Neue,sans-serif;font-size:80px;color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(201,168,76,.4);">' + data.number + '</div>' +
-            '<div style="font-size:13px;color:var(--muted);margin-top:8px;">Mult noroc, <strong style="color:var(--text);">' + data.name + '</strong>!</div>';
-          document.getElementById('clientContent').appendChild(card);
+        // Verify number is still in takenNumbers (not reset)
+        if (state.takenNumbers.indexOf(data.number) >= 0) {
+          var s1 = document.getElementById('step1');
+          var s2 = document.getElementById('step2');
+          var infoBox = document.querySelector('#clientContent .info-box');
+          if (s1) s1.style.display = 'none';
+          if (s2) s2.style.display = 'none';
+          if (infoBox) infoBox.style.display = 'none';
+          var existing = document.getElementById('successCard');
+          if (!existing) {
+            var card = document.createElement('div');
+            card.id = 'successCard';
+            card.style.cssText = 'background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:28px 16px;text-align:center;margin-bottom:14px;';
+            card.innerHTML =
+              '<div style="font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Numarul tau</div>' +
+              '<div style="font-family:Bebas Neue,sans-serif;font-size:80px;color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(201,168,76,.4);">' + data.number + '</div>' +
+              '<div style="font-size:13px;color:var(--muted);margin-top:8px;">Mult noroc, <strong style="color:var(--text);">' + data.name + '</strong>!</div>';
+            document.getElementById('clientContent').appendChild(card);
+          }
+          return;
+        } else {
+          // Reset happened - clear localStorage
+          localStorage.removeItem('myTombolaNum');
         }
-        return;
       } catch(e) { localStorage.removeItem('myTombolaNum'); }
     }
+
+    // Fresh start - ensure step1 visible, step2 locked
+    var s1 = document.getElementById('step1');
+    var s2 = document.getElementById('step2');
+    if (s1) { s1.style.display = 'block'; s1.classList.remove('locked'); }
+    if (s2) { s2.style.display = 'block'; s2.classList.add('locked'); s2.style.opacity = ''; s2.style.pointerEvents = ''; }
     renderGrid();
   });
 }
@@ -762,21 +776,20 @@ function deleteCode(code) {
 // ── VERIFICA COD ──────────────────────────────────
 function onNameInput(val) {
   var name = document.getElementById('clientName').value.trim();
-  var noCode = state && state.requireCode === false;
-  if (!noCode) return; // cu cod - nu face nimic automat
+  // Check requireCode - default true if state not loaded yet
+  var requireCode = !state || state.requireCode !== false;
+  if (requireCode) return;
   if (name.length >= 2) {
     codeVerified = true;
     verifiedName = name;
     showClientMsg('', '');
-    // Unlock step2 directly
     var s1 = document.getElementById('step1');
     var s2 = document.getElementById('step2');
     if (s1) s1.classList.add('locked');
     if (s2) {
       s2.classList.remove('locked');
-      // Force display
       s2.style.opacity = '1';
-      s2.style.pointerEvents = 'auto';
+      s2.style.pointerEvents = 'all';
     }
     renderGrid();
   }
@@ -1202,18 +1215,28 @@ function resetClientUI() {
   if (cc) cc.value = '';
   var s1 = document.getElementById('step1');
   var s2 = document.getElementById('step2');
-  if (s1) s1.classList.remove('locked');
+  if (s1) { s1.classList.remove('locked'); s1.style.opacity = ''; s1.style.pointerEvents = ''; }
   if (s2) {
     s2.classList.add('locked');
+    s2.style.opacity = '';
+    s2.style.pointerEvents = '';
     s2.innerHTML =
       '<div class="step-title"><span>2</span> Alege numarul tau norocos</div>' +
-      '<div class="picker-label" id="numPickerLabel">Alege un numar (1-100)</div>' +
+      '<div class="picker-label" id="numPickerLabel">Alege un numar (1-' + (state ? state.maxNumbers || 100 : 100) + ')</div>' +
       '<div class="grid" id="numGrid" style="margin-bottom:14px;"></div>' +
       '<div id="selectedPreview" class="preview-box" style="display:none;">' +
       '<div class="preview-num" id="chosenNum">-</div>' +
       '<div class="preview-lbl">Numarul tau ales</div></div>' +
       '<button class="btn btn-gold" id="registerBtn" onclick="registerClient()" disabled>CONFIRMA NUMARUL</button>';
   }
+  // Remove success card if exists
+  var sc = document.getElementById('successCard');
+  if (sc) sc.remove();
+  // Show steps again
+  if (s1) s1.style.display = 'block';
+  if (s2) s2.style.display = 'block';
+  var infoBox = document.querySelector('#clientContent .info-box');
+  if (infoBox) infoBox.style.display = 'block';
 }
 
 // ── INIT ──────────────────────────────────────────
