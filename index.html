@@ -192,7 +192,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 <div id="client-view" class="tab-panel active">
   <div class="hero">
     <div class="hero-icon">✦</div>
-    <h1>Tombola pentru<br>un Tuns Gratis</h1>
+    <h1 id="heroTitle">Tombola pentru<br>un Tuns Gratis</h1>
     <p id="heroSubtitle">Completeaza pasii de mai jos<br>pentru a participa la tombola.</p><div class="hero-line"></div>
   </div>
   <div id="timerSection" style="display:none;">
@@ -390,6 +390,20 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
     </div>
 
     <div class="card">
+      <div class="card-header" onclick="toggleCard('card-titlu')">
+        <h3>Titlu Tombola</h3>
+        <span class="card-toggle" id="toggle-card-titlu">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-titlu">
+        <label class="field-label">Titlu afisat clientilor</label>
+        <textarea class="field-input" id="titluInput" rows="2" placeholder="ex: Tombola pentru un Tuns Gratis" maxlength="80" style="resize:none;margin-bottom:6px;font-family:'DM Sans',sans-serif;"></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Foloseste Enter pentru a trece pe linie noua.</div>
+        <button class="btn-sm btn-gold" onclick="saveTitlu()" style="width:100%;">SALVEAZA TITLUL</button>
+        <div id="titluMsg" style="font-size:12px;margin-top:7px;text-align:center;"></div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-header" onclick="toggleCard('card-setari')">
         <h3>Interval Numere</h3>
         <span class="card-toggle" id="toggle-card-setari">&#9660;</span>
@@ -567,6 +581,7 @@ function loadState(callback) {
     if (!state.maxNumbers) state.maxNumbers = 100;
     if (!state.adminPassword) state.adminPassword = '1234';
     if (state.requireCode === undefined) state.requireCode = true;
+    if (!state.titlu) state.titlu = 'Tombola pentru\nun Tuns Gratis';
     callback();
   })
   .catch(function() {
@@ -708,6 +723,12 @@ function loadAndRenderClient() {
     document.getElementById('clientLoading').style.display = 'none';
     document.getElementById('clientContent').style.display = 'block';
     if (state.timerEnd) { startTimer(); } else { document.getElementById('timerSection').style.display = 'none'; }
+
+    // Apply saved title
+    if (state.titlu) {
+      var heroTitle = document.getElementById('heroTitle');
+      if (heroTitle) heroTitle.innerHTML = state.titlu.replace(/\n/g, '<br>');
+    }
 
     // Apply code mode (show/hide code field)
     applyClientCodeMode();
@@ -958,6 +979,10 @@ function renderAdmin() {
 
   document.getElementById('partCount').textContent = state.participants.length;
 
+  // titlu
+  var titluInputEl = document.getElementById('titluInput');
+  if (titluInputEl) titluInputEl.value = state.titlu || 'Tombola pentru\nun Tuns Gratis';
+
   // coduri active list
   var acEl = document.getElementById('activeCodesList');
   document.getElementById('activeCodesCount').textContent = state.activeCodes.length;
@@ -1027,7 +1052,23 @@ function renderAdmin() {
   }
 }
 
-// ── SETARI ────────────────────────────────────────
+// ── TITLU ─────────────────────────────────────────
+function saveTitlu() {
+  var val = document.getElementById('titluInput').value.trim();
+  var msg = document.getElementById('titluMsg');
+  if (!val) { msg.style.color = '#e74c3c'; msg.textContent = 'Titlul nu poate fi gol!'; return; }
+  state.titlu = val;
+  saveState(function() {
+    // Update client hero title live
+    var heroTitle = document.getElementById('heroTitle');
+    if (heroTitle) heroTitle.innerHTML = val.replace(/\n/g, '<br>');
+    msg.style.color = '#2ecc71';
+    msg.textContent = 'Titlu salvat!';
+    setTimeout(function() { msg.textContent = ''; }, 2500);
+  });
+}
+
+
 function applyMax() {
   var val = parseInt(document.getElementById('maxNumInput').value);
   if (!val || val < 10 || val > 9999) { alert('Introdu un numar intre 10 si 9999.'); return; }
