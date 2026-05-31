@@ -966,13 +966,14 @@ function renderAdmin() {
     ? 'Inregistrarile sunt <strong style="color:#e74c3c">INCHISE</strong>'
     : 'Inregistrarile sunt <strong style="color:#2ecc71">DESCHISE</strong>';
   var req = state.requireCode !== false;
-  document.getElementById('codeToggle').checked = req;
-  document.getElementById('codeLabel').innerHTML = req
-    ? 'Participare cu <strong style="color:var(--gold)">COD OBLIGATORIU</strong>'
-    : 'Participare <strong style="color:#2ecc71">LIBERA</strong> (fara cod)';
-  document.getElementById('codeModeHint').textContent = req
-    ? 'Clientii au nevoie de un cod generat de tine pentru a participa.'
+  var codeToggleEl = document.getElementById('codeToggle');
+  var codeModeHintEl = document.getElementById('codeModeHint');
+  var coduriSectionEl = document.getElementById('coduriSection');
+  if (codeToggleEl) codeToggleEl.checked = req;
+  if (codeModeHintEl) codeModeHintEl.textContent = req
+    ? 'Clientii au nevoie de cod pentru a participa.'
     : 'Oricine poate participa direct, fara cod.';
+  if (coduriSectionEl) coduriSectionEl.style.display = req ? 'block' : 'none';
   // Show/hide coduri card
   var coduriCard = document.getElementById('body-card-cod');
   if (coduriCard) coduriCard.parentElement.style.display = req ? 'block' : 'none';
