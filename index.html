@@ -193,7 +193,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
   <div class="hero">
     <div class="hero-icon">✦</div>
     <h1>Tombola pentru<br>un Tuns Gratis</h1>
-    <div class="hero-line"></div>
+    <p id="heroSubtitle">Completeaza pasii de mai jos<br>pentru a participa la tombola.</p><div class="hero-line"></div>
   </div>
   <div id="timerSection" style="display:none;">
     <div class="timer-box">
@@ -721,6 +721,7 @@ function loadAndRenderClient() {
           document.getElementById('nameStep').style.display = 'none';
           document.getElementById('numberStep').style.display = 'none';
           document.getElementById('infoBoxWrap').style.display = 'none';
+          var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
           showSuccessCard(data.number, data.name);
           return;
         } else {
@@ -882,6 +883,7 @@ function showSuccess(num, name) {
   document.getElementById('nameStep').style.display = 'none';
   document.getElementById('numberStep').style.display = 'none';
   document.getElementById('infoBoxWrap').style.display = 'none';
+  var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
   showClientMsg('', '');
   showSuccessCard(num, name);
 }
@@ -1168,6 +1170,7 @@ function resetClientUI() {
   }
   var sc = document.getElementById('successCard');
   if (sc) sc.remove();
+  var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = '';
   document.getElementById('infoBoxWrap').style.display = 'block';
 }
 
