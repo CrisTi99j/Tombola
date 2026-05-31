@@ -533,6 +533,7 @@ function loadState(callback) {
     if (state.locked === undefined) state.locked = false;
     if (!state.maxNumbers) state.maxNumbers = 100;
     if (!state.adminPassword) state.adminPassword = '1234';
+    if (state.requireCode === undefined) state.requireCode = true;
     callback();
   })
   .catch(function() {
@@ -549,13 +550,17 @@ function saveState(callback) {
     headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
     body: JSON.stringify(state)
   })
-  .then(function(r) { return r.json(); })
-  .then(function() {
+  .then(function(r) {
     ind.className = 'sync-indicator';
-    if (callback) callback();
+    if (!r.ok) { alert('Eroare la salvare (status ' + r.status + ')'); return null; }
+    return r.json();
   })
-  .catch(function() {
+  .then(function(data) {
+    if (data && callback) callback();
+  })
+  .catch(function(e) {
     ind.className = 'sync-indicator';
+    console.error(e);
     alert('Eroare la salvare. Verifica conexiunea.');
   });
 }
@@ -756,15 +761,23 @@ function deleteCode(code) {
 
 // ── VERIFICA COD ──────────────────────────────────
 function onNameInput(val) {
-  var name = val ? val.trim() : document.getElementById('clientName').value.trim();
-  var noCode = state.requireCode === false;
-  if (noCode && name.length >= 2) {
-    // Auto-unlock step2
+  var name = document.getElementById('clientName').value.trim();
+  var noCode = state && state.requireCode === false;
+  if (!noCode) return; // cu cod - nu face nimic automat
+  if (name.length >= 2) {
     codeVerified = true;
     verifiedName = name;
     showClientMsg('', '');
-    document.getElementById('step1').classList.add('locked');
-    document.getElementById('step2').classList.remove('locked');
+    // Unlock step2 directly
+    var s1 = document.getElementById('step1');
+    var s2 = document.getElementById('step2');
+    if (s1) s1.classList.add('locked');
+    if (s2) {
+      s2.classList.remove('locked');
+      // Force display
+      s2.style.opacity = '1';
+      s2.style.pointerEvents = 'auto';
+    }
     renderGrid();
   }
 }
