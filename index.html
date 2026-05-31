@@ -54,7 +54,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);m
 .msg-info{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.28);color:var(--gold);}
 .info-box{background:var(--surface);border:1px solid #1a3020;border-radius:10px;padding:13px 15px;font-size:13px;color:var(--muted);line-height:1.6;text-align:center;}
 .info-box strong{color:var(--text);}
-.step.locked{opacity:.4;pointer-events:none;}
+.step.locked{opacity:.4;pointer-events:none;}.step:not(.locked){opacity:1;pointer-events:auto;}
 .step.locked .step-title span{background:var(--muted);}
 
 .success-num{font-family:Bebas Neue,sans-serif;font-size:120px;color:var(--gold);line-height:1;text-shadow:0 0 60px rgba(201,168,76,.6);}
@@ -776,7 +776,6 @@ function deleteCode(code) {
 // ── VERIFICA COD ──────────────────────────────────
 function onNameInput(val) {
   var name = document.getElementById('clientName').value.trim();
-  // Check requireCode - default true if state not loaded yet
   var requireCode = !state || state.requireCode !== false;
   if (requireCode) return;
   if (name.length >= 2) {
@@ -785,11 +784,10 @@ function onNameInput(val) {
     showClientMsg('', '');
     var s1 = document.getElementById('step1');
     var s2 = document.getElementById('step2');
-    if (s1) s1.classList.add('locked');
+    if (s1) { s1.classList.add('locked'); }
     if (s2) {
       s2.classList.remove('locked');
-      s2.style.opacity = '1';
-      s2.style.pointerEvents = 'all';
+      s2.removeAttribute('style');
     }
     renderGrid();
   }
