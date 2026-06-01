@@ -461,6 +461,8 @@ var adminUnlocked = false;
 var codeVerified = false;
 var verifiedName = '';
 var timerInterval = null;
+var isSaving = false;
+var saveQueue = null;
 
 // ── WINNERS TAB ────────────────────────────────────────────
 function loadAndRenderWinners() {
@@ -567,47 +569,99 @@ function toggleCard(cardId) {
 }
 
 // ── API ──────────────────────────────────────────
-function loadState(callback) {
+
+function normalizeState(s) {
+  if (!s || typeof s !== 'object') s = {};
+  if (!Array.isArray(s.activeCodes)) s.activeCodes = [];
+  if (!Array.isArray(s.winners)) s.winners = [];
+  if (!Array.isArray(s.participants)) s.participants = [];
+  if (!Array.isArray(s.takenNumbers)) s.takenNumbers = [];
+  if (!Array.isArray(s.historic)) s.historic = [];
+  if (typeof s.locked !== 'boolean') s.locked = false;
+  if (!s.maxNumbers || s.maxNumbers < 1) s.maxNumbers = 100;
+  if (!s.adminPassword) s.adminPassword = '1234';
+  if (s.requireCode === undefined) s.requireCode = true;
+  if (!s.titlu) s.titlu = 'Tombola pentru\nun Tuns Gratis';
+  return s;
+}
+
+function loadState(callback, retryCount) {
+  retryCount = retryCount || 0;
   fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    state = data.record;
-    if (!state.activeCodes) state.activeCodes = [];
-    if (!state.winners) state.winners = [];
-    if (!state.participants) state.participants = [];
-    if (!state.takenNumbers) state.takenNumbers = [];
-    if (!state.historic) state.historic = [];
-    if (state.locked === undefined) state.locked = false;
-    if (!state.maxNumbers) state.maxNumbers = 100;
-    if (!state.adminPassword) state.adminPassword = '1234';
-    if (state.requireCode === undefined) state.requireCode = true;
-    if (!state.titlu) state.titlu = 'Tombola pentru\nun Tuns Gratis';
-    callback();
+  .then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
   })
-  .catch(function() {
-    showClientMsg('Eroare la incarcare. Verifica conexiunea.', 'error');
-    document.getElementById('clientLoading').style.display = 'none';
+  .then(function(data) {
+    if (!data || !data.record) throw new Error('Date invalide');
+    var fresh = normalizeState(data.record);
+    // PROTECTIE: nu suprascrie cu date goale daca avem participanti in memorie
+    if (state && state.participants && state.participants.length > 0
+        && fresh.participants.length === 0 && fresh.takenNumbers.length === 0) {
+      console.warn('Server returnat date goale - mentinut state local');
+      if (callback) callback();
+      return;
+    }
+    state = fresh;
+    if (callback) callback();
+  })
+  .catch(function(e) {
+    console.error('loadState eroare:', e);
+    if (retryCount < 2) {
+      setTimeout(function() { loadState(callback, retryCount + 1); }, 1500);
+    } else {
+      if (state) {
+        console.warn('Folosesc state din memorie');
+        if (callback) callback();
+      } else {
+        var cl = document.getElementById('clientLoading');
+        if (cl) cl.innerHTML = '<div style="color:#e74c3c;font-size:13px;">Eroare la incarcare. Reincarca pagina.</div>';
+      }
+    }
   });
 }
 
-function saveState(callback) {
+function saveState(callback, retryCount) {
+  retryCount = retryCount || 0;
+  // PROTECTIE: nu salva niciodata state invalid
+  if (!state || !Array.isArray(state.participants)) {
+    console.error('saveState blocat: state invalid');
+    if (callback) callback();
+    return;
+  }
+  // Previne salvari simultane
+  if (isSaving) {
+    saveQueue = callback;
+    return;
+  }
+  isSaving = true;
+  saveQueue = null;
   var ind = document.getElementById('syncIndicator');
-  ind.className = 'sync-indicator show';
+  if (ind) ind.className = 'sync-indicator show';
   fetch(API_URL, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
     body: JSON.stringify(state)
   })
   .then(function(r) {
-    ind.className = 'sync-indicator';
-    if (!r.ok) { alert('Eroare la salvare (status ' + r.status + ')'); return null; }
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
   })
-  .then(function(data) { if (data && callback) callback(); })
+  .then(function() {
+    isSaving = false;
+    if (ind) ind.className = 'sync-indicator';
+    if (callback) callback();
+    if (saveQueue) { var q = saveQueue; saveQueue = null; saveState(q); }
+  })
   .catch(function(e) {
-    ind.className = 'sync-indicator';
-    console.error(e);
-    alert('Eroare la salvare. Verifica conexiunea.');
+    console.error('saveState eroare:', e);
+    isSaving = false;
+    if (ind) ind.className = 'sync-indicator';
+    if (retryCount < 2) {
+      setTimeout(function() { saveState(callback, retryCount + 1); }, 2000);
+    } else {
+      alert('Eroare la salvare dupa 3 incercari. Verifica conexiunea.');
+    }
   });
 }
 
@@ -622,10 +676,26 @@ function switchTab(tab) {
   document.getElementById('admin-view').classList.toggle('active', tab === 'admin');
   if (tab === 'admin') {
     if (!adminUnlocked) { document.getElementById('pwOverlay').style.display = 'flex'; }
-    else { loadAndRenderAdmin(); }
+    else if (!state) { loadAndRenderAdmin(); }
+    else {
+      document.getElementById('adminLoading').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'block';
+      renderAdmin();
+    }
   }
-  if (tab === 'client') { resetClientUI(); loadAndRenderClient(); }
-  if (tab === 'winners') { loadAndRenderWinners(); }
+  if (tab === 'client') {
+    resetClientUI();
+    if (!state) { loadAndRenderClient(); }
+    else { renderClientFromState(); }
+  }
+  if (tab === 'winners') {
+    if (!state) { loadAndRenderWinners(); }
+    else {
+      document.getElementById('winnersLoading').style.display = 'none';
+      document.getElementById('winnersContent').style.display = 'block';
+      renderWinners();
+    }
+  }
 }
 
 // ── PAROLA ────────────────────────────────────────
@@ -715,6 +785,36 @@ function startTimer() {
 }
 
 // ── CLIENT LOAD ───────────────────────────────────
+
+// Randeaza UI client din state-ul deja incarcat (fara request nou)
+function renderClientFromState() {
+  document.getElementById('clientLoading').style.display = 'none';
+  document.getElementById('clientContent').style.display = 'block';
+  if (state.timerEnd) { startTimer(); } else { document.getElementById('timerSection').style.display = 'none'; }
+  if (state.titlu) {
+    var heroTitle = document.getElementById('heroTitle');
+    if (heroTitle) heroTitle.innerHTML = state.titlu.replace(/\n/g, '<br>');
+  }
+  applyClientCodeMode();
+  var saved = localStorage.getItem('myTombolaNum');
+  if (saved) {
+    try {
+      var data = JSON.parse(saved);
+      if (state.takenNumbers.indexOf(data.number) >= 0) {
+        document.getElementById('nameStep').style.display = 'none';
+        document.getElementById('numberStep').style.display = 'none';
+        document.getElementById('infoBoxWrap').style.display = 'none';
+        var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+        showSuccessCard(data.number, data.name);
+        return;
+      } else {
+        localStorage.removeItem('myTombolaNum');
+      }
+    } catch(e) { localStorage.removeItem('myTombolaNum'); }
+  }
+  renderGrid();
+}
+
 function loadAndRenderClient() {
   document.getElementById('clientLoading').style.display = 'block';
   document.getElementById('clientContent').style.display = 'none';
@@ -819,18 +919,16 @@ function verifyCode() {
   if (!code) { showClientMsg('Introdu codul primit de la frizer!', 'error'); return; }
   if (state.activeCodes.length === 0) { showClientMsg('Nu exista niciun cod activ. Cere un cod de la frizer.', 'error'); return; }
   if (state.activeCodes.indexOf(code) < 0) { showClientMsg('Cod incorect! Verifica codul primit de la frizer.', 'error'); return; }
+  // Cod valid in memorie - consuma-l si salveaza
   showClientMsg('Se verifica...', 'info');
-  loadState(function() {
-    if (state.activeCodes.indexOf(code) < 0) { showClientMsg('Codul a fost deja folosit. Cere un cod nou.', 'error'); return; }
-    state.activeCodes = state.activeCodes.filter(function(c) { return c !== code; });
-    saveState(function() {
-      codeVerified = true;
-      verifiedName = name;
-      showClientMsg('Cod valid! Acum alege numarul tau norocos.', 'success');
-      document.getElementById('nameStep').classList.add('locked');
-      document.getElementById('numberStep').classList.remove('locked');
-      renderGrid();
-    });
+  state.activeCodes = state.activeCodes.filter(function(c) { return c !== code; });
+  saveState(function() {
+    codeVerified = true;
+    verifiedName = name;
+    showClientMsg('Cod valid! Acum alege numarul tau norocos.', 'success');
+    document.getElementById('nameStep').classList.add('locked');
+    document.getElementById('numberStep').classList.remove('locked');
+    renderGrid();
   });
 }
 
@@ -866,21 +964,20 @@ function selectNumber(n) {
 // ── INREGISTRARE ──────────────────────────────────
 function registerClient() {
   if (!codeVerified || !selectedNumber) return;
+  // Verifica numarul direct in state-ul din memorie (fara request extra)
+  if (state.takenNumbers.indexOf(selectedNumber) >= 0) {
+    showClientMsg('Numarul ' + selectedNumber + ' a fost ales intre timp. Alege altul!', 'error');
+    selectedNumber = null;
+    document.getElementById('selectedPreview').style.display = 'none';
+    document.getElementById('registerBtn').disabled = true;
+    renderGrid(); return;
+  }
   showClientMsg('Se inregistreaza...', 'info');
-  loadState(function() {
-    if (state.takenNumbers.indexOf(selectedNumber) >= 0) {
-      showClientMsg('Numarul ' + selectedNumber + ' a fost ales intre timp. Alege altul!', 'error');
-      selectedNumber = null;
-      document.getElementById('selectedPreview').style.display = 'none';
-      document.getElementById('registerBtn').disabled = true;
-      renderGrid(); return;
-    }
-    state.participants.push({ name: verifiedName, number: selectedNumber, ts: Date.now() });
-    state.takenNumbers.push(selectedNumber);
-    var num = selectedNumber;
-    var name = verifiedName;
-    saveState(function() { showSuccess(num, name); });
-  });
+  state.participants.push({ name: verifiedName, number: selectedNumber, ts: Date.now() });
+  state.takenNumbers.push(selectedNumber);
+  var num = selectedNumber;
+  var name = verifiedName;
+  saveState(function() { showSuccess(num, name); });
 }
 
 // ── SUCCESS ────────────────────────────────────────
@@ -1073,7 +1170,16 @@ function applyMax() {
   var val = parseInt(document.getElementById('maxNumInput').value);
   if (!val || val < 10 || val > 9999) { alert('Introdu un numar intre 10 si 9999.'); return; }
   if (state.participants.length > 0) {
-    if (!confirm('Schimbarea intervalului va reseta toti participantii. Continui?')) return;
+    var answer = prompt('Schimbarea intervalului sterge ' + state.participants.length + ' participanti!\nScrie "DA" pentru a confirma:');
+    if (answer !== 'DA') { alert('Anulat.'); return; }
+    // Backup automat
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('ro-RO') + ' ' + now.toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'});
+    state.historic.push({
+      date: dateStr + ' [SCHIMB INTERVAL]',
+      participants: state.participants.length,
+      winners: state.winners.slice()
+    });
   }
   state.participants = []; state.takenNumbers = []; state.winners = [];
   state.maxNumbers = val;
@@ -1173,7 +1279,21 @@ function confirmResetDrawOnly() {
 }
 
 function confirmReset() {
-  if (!confirm('RESETEZI COMPLET tombola? Toti participantii si castigatorii vor fi stersi!')) return;
+  if (state.participants.length === 0) {
+    alert('Nu exista participanti de sters.'); return;
+  }
+  var answer = prompt('Scrie "RESET" pentru a confirma stergerea a ' + state.participants.length + ' participanti:');
+  if (answer !== 'RESET') { alert('Reset anulat.'); return; }
+  // Backup automat in historic inainte de reset
+  if (state.winners.length > 0 || state.participants.length > 0) {
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('ro-RO') + ' ' + now.toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'});
+    state.historic.push({
+      date: dateStr + ' [RESET]',
+      participants: state.participants.length,
+      winners: state.winners.slice()
+    });
+  }
   state.participants = []; state.takenNumbers = []; state.winners = [];
   document.getElementById('winnerReveal').style.display = 'none';
   document.getElementById('drawStage').style.display = 'none';
