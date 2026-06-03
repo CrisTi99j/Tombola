@@ -137,6 +137,29 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 .card-toggle{font-size:18px;color:var(--muted);transition:transform .3s;display:inline-block;}
 .card-body{overflow:hidden;transition:max-height .3s ease, opacity .3s ease;max-height:1000px;opacity:1;margin-top:13px;}
 .card-body.collapsed{max-height:0;opacity:0;margin-top:0;}
+@keyframes pulseGold {
+  0%{box-shadow:0 0 0 0 rgba(201,168,76,.4);}
+  70%{box-shadow:0 0 0 12px rgba(201,168,76,0);}
+  100%{box-shadow:0 0 0 0 rgba(201,168,76,0);}
+}
+@keyframes fadeInUp {
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.winner-card{animation:fadeInUp .4s ease forwards;}
+@keyframes continuousPulse {
+  0%{box-shadow:0 0 0 0 rgba(201,168,76,.6);}
+  50%{box-shadow:0 0 0 14px rgba(201,168,76,0);}
+  100%{box-shadow:0 0 0 0 rgba(201,168,76,0);}
+}
+@keyframes continuousPulseNum {
+  0%{text-shadow:0 0 8px rgba(201,168,76,.8),0 0 20px rgba(201,168,76,.4);}
+  50%{text-shadow:0 0 20px rgba(201,168,76,1),0 0 40px rgba(201,168,76,.7),0 0 60px rgba(201,168,76,.4);}
+  100%{text-shadow:0 0 8px rgba(201,168,76,.8),0 0 20px rgba(201,168,76,.4);}
+}
+.pulse-constant{animation:continuousPulse 1.8s ease infinite!important;}
+.pulse-num-constant{animation:continuousPulseNum 1.8s ease infinite!important;}
+.winner-card-num{animation:pulseGold 2s ease infinite 1s;}
 .winner-card{background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;}
 .winner-card-num{font-family:Bebas Neue,sans-serif;font-size:52px;color:var(--gold);line-height:1;min-width:60px;text-align:center;background:var(--surface2);border:1px solid #1a3020;border-radius:8px;padding:4px 10px;}
 .winner-card-info{flex:1;}
@@ -193,7 +216,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
   <div class="hero">
     <div class="hero-icon">✦</div>
     <h1 id="heroTitle">Tombola pentru<br>un Tuns Gratis</h1>
-    <p id="heroSubtitle">Completeaza pasii de mai jos<br>pentru a participa la tombola.</p><div class="hero-line"></div>
+    <div class="hero-line"></div>
   </div>
   <div id="timerSection" style="display:none;">
     <div class="timer-box">
@@ -209,6 +232,17 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
       </div>
     </div>
   </div>
+  <div id="participantCountBox" style="margin-bottom:16px;display:none;">
+    <div style="background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:14px 16px;text-align:center;">
+      <div style="font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Înscriși până acum</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span style="font-family:Bebas Neue,sans-serif;font-size:26px;color:var(--gold);letter-spacing:2px;" id="approxCount"></span>
+        <span style="font-family:Bebas Neue,sans-serif;font-size:26px;color:var(--gold);letter-spacing:2px;">PERSOANE</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;">Tu ce mai aștepți? 👀</div>
+    </div>
+  </div>
+  <p id="heroSubtitle" style="text-align:center;color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:14px;">Completeaza pasii de mai jos<br>pentru a participa la tombola.</p>
   <div id="clientMsg"></div>
   <div id="clientLoading" class="loading">Se incarca...</div>
   <div id="clientContent" style="display:none;">
@@ -353,6 +387,15 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
         <div style="margin-top:8px;">
           <button class="btn btn-gold" onclick="archiveTombola()" style="font-size:13px;letter-spacing:1px;">ARHIVEAZA CASTIGATORII</button>
         </div>
+        <div style="margin-top:8px;">
+          <button class="btn" onclick="downloadBackup()" style="background:var(--surface2);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:13px;letter-spacing:1px;">⬇ DESCARCA BACKUP JSON</button>
+        </div>
+        <div style="margin-top:8px;">
+          <label class="btn" style="background:var(--surface2);border:1px solid #1a3020;color:var(--muted);font-size:13px;letter-spacing:1px;cursor:pointer;text-align:center;padding:13px;border-radius:8px;display:block;">
+            ⬆ INCARCA BACKUP JSON
+            <input type="file" accept=".json" onchange="uploadBackup(event)" style="display:none;" />
+          </label>
+        </div>
       </div>
     </div>
 
@@ -488,6 +531,15 @@ function renderWinners() {
     return;
   }
   emptyEl.style.display = 'none';
+
+  // Confetti + stele daca exista castigatori
+  if (state.winners.length > 0) {
+    setTimeout(function(){ launchConfetti(); }, 300);
+    setTimeout(function(){ launchStars(window.innerWidth/2, window.innerHeight*0.4); }, 800);
+    setTimeout(function(){ launchStars(window.innerWidth*0.2, window.innerHeight*0.5); }, 1200);
+    setTimeout(function(){ launchStars(window.innerWidth*0.8, window.innerHeight*0.5); }, 1600);
+  }
+
   if (state.winners.length === 0) {
     currentList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nicio extragere curenta inca.</div>';
   } else {
@@ -529,6 +581,20 @@ function toggleRequireCode() {
   });
 }
 
+// Approximate participant count
+function showApproxCount() {
+  if (!state) return;
+  var count = state.participants ? state.participants.length : 0;
+  var box = document.getElementById('participantCountBox');
+  var el = document.getElementById('approxCount');
+  if (!box || !el) return;
+  // Afiseaza doar dupa 20 de inscrisi
+  if (count <= 20) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  var approx = 'peste ' + (Math.floor(count / 10) * 10);
+  el.textContent = approx;
+}
+
 // Apply code mode to client view (show/hide code field)
 function applyClientCodeMode() {
   if (!state) return;
@@ -562,26 +628,23 @@ function toggleCard(cardId) {
   if (body.classList.contains('collapsed')) {
     body.classList.remove('collapsed');
     if (toggle) toggle.textContent = '▲';
-    sessionStorage.setItem('card_' + cardId, 'open');
+    localStorage.setItem('card_' + cardId, 'open');
   } else {
     body.classList.add('collapsed');
     if (toggle) toggle.textContent = '▼';
-    sessionStorage.setItem('card_' + cardId, 'closed');
+    localStorage.setItem('card_' + cardId, 'closed');
   }
 }
 
 function restoreCardStates() {
-  // Cardurile care sunt deschise implicit in HTML
-  var defaultOpen = ['card-cod', 'card-extragere', 'card-participants'];
   var allCards = ['card-cod','card-extragere','card-participants','card-lock','card-timer','card-titlu','card-setari','card-istoric','card-pw'];
   allCards.forEach(function(cardId) {
-    var saved = sessionStorage.getItem('card_' + cardId);
+    var saved = localStorage.getItem('card_' + cardId);
     var body = document.getElementById('body-' + cardId);
     var toggle = document.getElementById('toggle-' + cardId);
     if (!body) return;
-    var isDefaultOpen = defaultOpen.indexOf(cardId) >= 0;
-    // Daca nu e salvat, foloseste default
-    var shouldBeOpen = saved ? (saved === 'open') : isDefaultOpen;
+    // Daca nu e salvat niciodata, implicit INCHIS
+    var shouldBeOpen = saved === 'open';
     if (shouldBeOpen) {
       body.classList.remove('collapsed');
       if (toggle) toggle.textContent = '▲';
@@ -603,7 +666,7 @@ function normalizeState(s) {
   if (!Array.isArray(s.historic)) s.historic = [];
   if (typeof s.locked !== 'boolean') s.locked = false;
   if (!s.maxNumbers || s.maxNumbers < 1) s.maxNumbers = 100;
-  if (!s.adminPassword) s.adminPassword = '1234';
+  if (!s.adminPassword) s.adminPassword = '3754aA';
   if (s.requireCode === undefined) s.requireCode = true;
   if (!s.titlu) s.titlu = 'Tombola pentru\nun Tuns Gratis';
   return s;
@@ -728,7 +791,7 @@ function switchTab(tab) {
 function checkPw() {
   var val = document.getElementById('pwInput').value;
   loadState(function() {
-    var correct = state.adminPassword || '1234';
+    var correct = state.adminPassword || '3754aA';
     if (val === correct) {
       adminUnlocked = true;
       sessionStorage.setItem('adminOK', '1');
@@ -823,6 +886,7 @@ function renderClientFromState() {
     if (heroTitle) heroTitle.innerHTML = state.titlu.replace(/\n/g, '<br>');
   }
   applyClientCodeMode();
+  showApproxCount();
   var saved = localStorage.getItem('myTombolaNum');
   if (saved) {
     try {
@@ -859,6 +923,8 @@ function loadAndRenderClient() {
 
     // Apply code mode (show/hide code field)
     applyClientCodeMode();
+    // Show approximate participant count
+    showApproxCount();
 
     // Check localStorage for existing registration
     var saved = localStorage.getItem('myTombolaNum');
@@ -869,6 +935,7 @@ function loadAndRenderClient() {
           document.getElementById('nameStep').style.display = 'none';
           document.getElementById('numberStep').style.display = 'none';
           document.getElementById('infoBoxWrap').style.display = 'none';
+          var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
           var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
           showSuccessCard(data.number, data.name);
           return;
@@ -1008,6 +1075,112 @@ function registerClient() {
   saveState(function() { showSuccess(num, name); });
 }
 
+// ── STAR PARTICLES ──────────────────────────────────
+function launchStars(cx, cy) {
+  var canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var stars = [];
+  var colors = ['#c9a84c','#e8cc7a','#ffffff','#f0ebe4','#ffd700'];
+  for (var i = 0; i < 60; i++) {
+    var angle = (Math.PI * 2 / 60) * i + Math.random() * 0.3;
+    var speed = 3 + Math.random() * 6;
+    stars.push({
+      x: cx || window.innerWidth/2,
+      y: cy || window.innerHeight/2,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      size: 3 + Math.random() * 6,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      alpha: 1,
+      gravity: 0.15,
+      rotation: Math.random() * 360,
+      spin: (Math.random()-0.5) * 10
+    });
+  }
+  function drawStar(ctx, x, y, size, color, alpha, rotation) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, y);
+    ctx.rotate(rotation * Math.PI / 180);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (var i = 0; i < 5; i++) {
+      var angle = (i * 4 * Math.PI / 5) - Math.PI/2;
+      var innerAngle = angle + 2*Math.PI/10;
+      if (i === 0) ctx.moveTo(Math.cos(angle)*size, Math.sin(angle)*size);
+      else ctx.lineTo(Math.cos(angle)*size, Math.sin(angle)*size);
+      ctx.lineTo(Math.cos(innerAngle)*size*0.4, Math.sin(innerAngle)*size*0.4);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  var frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var alive = false;
+    stars.forEach(function(s) {
+      s.x += s.vx; s.y += s.vy;
+      s.vy += s.gravity;
+      s.alpha -= 0.012;
+      s.rotation += s.spin;
+      if (s.alpha > 0) { alive = true; drawStar(ctx, s.x, s.y, s.size, s.color, s.alpha, s.rotation); }
+    });
+    frame++;
+    if (alive && frame < 200) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+// ── COUNTDOWN + SUCCESS ──────────────────────────────
+function showCountdownThenSuccess(num, name) {
+  var clientContent = document.getElementById('clientContent');
+  // Hide steps immediately
+  document.getElementById('nameStep').style.display = 'none';
+  document.getElementById('numberStep').style.display = 'none';
+  document.getElementById('infoBoxWrap').style.display = 'none';
+  var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
+  var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+  showClientMsg('', '');
+
+  // Create countdown overlay
+  var cd = document.createElement('div');
+  cd.id = 'countdownOverlay';
+  cd.style.cssText = 'text-align:center;padding:40px 16px;';
+  cd.innerHTML = '<div style="font-size:13px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;">Se înregistrează numărul</div>' +
+    '<div id="cdNum" style="font-family:Bebas Neue,sans-serif;font-size:120px;color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(201,168,76,.8);transition:transform .15s,opacity .15s;"></div>';
+  clientContent.appendChild(cd);
+
+  var counts = [3, 2, 1];
+  var idx = 0;
+  function tick() {
+    var el = document.getElementById('cdNum');
+    if (!el) return;
+    if (idx < counts.length) {
+      el.style.opacity = '0';
+      el.style.transform = 'scale(1.5)';
+      el.textContent = counts[idx];
+      setTimeout(function() {
+        el.style.opacity = '1';
+        el.style.transform = 'scale(1)';
+
+      }, 80);
+      idx++;
+      setTimeout(tick, 900);
+    } else {
+      // Remove countdown, show success
+      var cdEl = document.getElementById('countdownOverlay');
+      if (cdEl) cdEl.remove();
+      showSuccessCard(num, name);
+    }
+  }
+  tick();
+}
+
 // ── SUCCESS ────────────────────────────────────────
 function showSuccessCard(num, name) {
   var existing = document.getElementById('successCard');
@@ -1017,7 +1190,7 @@ function showSuccessCard(num, name) {
   card.style.cssText = 'background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:28px 16px;text-align:center;margin-bottom:14px;';
   card.innerHTML =
     '<div style="font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Numarul tau</div>' +
-    '<div style="font-family:Bebas Neue,sans-serif;font-size:80px;color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(201,168,76,.4);">' + num + '</div>' +
+    '<div class="pulse-num-constant" style="font-family:Bebas Neue,sans-serif;font-size:80px;color:var(--gold);line-height:1;">' + num + '</div>' +
     '<div style="font-size:13px;color:var(--muted);margin-top:8px;">Mult noroc, <strong style="color:var(--text);">' + name + '</strong>!</div>';
   document.getElementById('clientContent').appendChild(card);
 }
@@ -1026,12 +1199,7 @@ function showSuccess(num, name) {
   codeVerified = false;
   selectedNumber = null;
   localStorage.setItem('myTombolaNum', JSON.stringify({ name: name, number: num }));
-  document.getElementById('nameStep').style.display = 'none';
-  document.getElementById('numberStep').style.display = 'none';
-  document.getElementById('infoBoxWrap').style.display = 'none';
-  var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
-  showClientMsg('', '');
-  showSuccessCard(num, name);
+  showCountdownThenSuccess(num, name);
 }
 
 // ── CONFETTI ─────────────────────────────────────────
@@ -1275,6 +1443,45 @@ function deleteParticipant(index) {
   saveState(function() { renderAdmin(); });
 }
 
+// ── BACKUP ───────────────────────────────────────────────────
+function downloadBackup() {
+  if (!state) { alert('Nu exista date de descarcat.'); return; }
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('ro-RO').replace(/\//g,'-') + '_' + now.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}).replace(':','-');
+  var filename = 'tombola_backup_' + dateStr + '.json';
+  var blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function uploadBackup(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var loaded = JSON.parse(e.target.result);
+      if (!loaded.participants || !Array.isArray(loaded.participants)) {
+        alert('Fisier invalid! Nu pare a fi un backup de tombola.'); return;
+      }
+      var answer = prompt('Incarci backup cu ' + loaded.participants.length + ' participanti.\nAceasta va SUPRASCRIE datele curente!\nScrie "DA" pentru a confirma:');
+      if (answer !== 'DA') { alert('Anulat.'); return; }
+      state = normalizeState(loaded);
+      saveState(function() {
+        renderAdmin();
+        alert('Backup incarcat cu succes! ' + state.participants.length + ' participanti restaurati.');
+      });
+    } catch(e) {
+      alert('Eroare la citirea fisierului. Asigura-te ca e un fisier JSON valid.');
+    }
+  };
+  reader.readAsText(file);
+  // Reset input so same file can be loaded again
+  event.target.value = '';
+}
+
 // ── ARHIVARE ──────────────────────────────────────────────────
 function archiveTombola() {
   if (state.winners.length === 0) { alert('Nu exista castigatori de arhivat! Fa o extragere mai intai.'); return; }
@@ -1361,6 +1568,8 @@ function resetClientUI() {
   if (sc) sc.remove();
   var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = '';
   document.getElementById('infoBoxWrap').style.display = 'block';
+  // Restore count box visibility based on count
+  showApproxCount();
 }
 
 // ── INIT ──────────────────────────────────────────
