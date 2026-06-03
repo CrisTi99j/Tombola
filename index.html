@@ -215,11 +215,11 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 
     <div id="nameStep" class="step">
       <div class="step-title"><span>1</span> Numele tau</div>
-      <input class="field-input" type="text" id="clientName" placeholder="ex: Ion Popescu" maxlength="40" style="margin-bottom:0;" />
+      <input class="field-input" type="text" id="clientName" placeholder="ex: Ion Popescu" maxlength="60" style="margin-bottom:0;" />
       <!-- codeSection: shown/hidden based on requireCode -->
       <div id="codeSection">
         <label class="field-label" style="margin-top:10px;">Cod de participare</label>
-        <input class="field-input code-input" type="text" id="clientCode" placeholder="------" maxlength="8" />
+        <input class="field-input code-input" type="text" id="clientCode" placeholder="------" maxlength="8" oninput="this.value=this.value.replace(/\s/g,'').toUpperCase()" />
         <button class="btn btn-gold" onclick="verifyCode()" style="margin-top:0;">VERIFICA CODUL</button>
       </div>
       <!-- Free proceed button: shown when requireCode=false -->
@@ -344,7 +344,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
         <span class="card-toggle" id="toggle-card-participants">&#9650;</span>
       </div>
       <div class="card-body" id="body-card-participants">
-        <div id="participantsTable"><div class="empty-state">Niciun participant inca.</div></div>
+        <div id="participantsTable" style="max-height:380px;overflow-y:auto;"><div class="empty-state">Niciun participant inca.</div></div>
         <div class="divider"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn-red" onclick="confirmResetDrawOnly()" style="flex:1;">Reseteaza extragerea</button>
@@ -457,7 +457,7 @@ var API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
 
 var state = null;
 var selectedNumber = null;
-var adminUnlocked = false;
+var adminUnlocked = sessionStorage.getItem('adminOK') === '1';
 var codeVerified = false;
 var verifiedName = '';
 var timerInterval = null;
@@ -562,10 +562,34 @@ function toggleCard(cardId) {
   if (body.classList.contains('collapsed')) {
     body.classList.remove('collapsed');
     if (toggle) toggle.textContent = '▲';
+    sessionStorage.setItem('card_' + cardId, 'open');
   } else {
     body.classList.add('collapsed');
     if (toggle) toggle.textContent = '▼';
+    sessionStorage.setItem('card_' + cardId, 'closed');
   }
+}
+
+function restoreCardStates() {
+  // Cardurile care sunt deschise implicit in HTML
+  var defaultOpen = ['card-cod', 'card-extragere', 'card-participants'];
+  var allCards = ['card-cod','card-extragere','card-participants','card-lock','card-timer','card-titlu','card-setari','card-istoric','card-pw'];
+  allCards.forEach(function(cardId) {
+    var saved = sessionStorage.getItem('card_' + cardId);
+    var body = document.getElementById('body-' + cardId);
+    var toggle = document.getElementById('toggle-' + cardId);
+    if (!body) return;
+    var isDefaultOpen = defaultOpen.indexOf(cardId) >= 0;
+    // Daca nu e salvat, foloseste default
+    var shouldBeOpen = saved ? (saved === 'open') : isDefaultOpen;
+    if (shouldBeOpen) {
+      body.classList.remove('collapsed');
+      if (toggle) toggle.textContent = '▲';
+    } else {
+      body.classList.add('collapsed');
+      if (toggle) toggle.textContent = '▼';
+    }
+  });
 }
 
 // ── API ──────────────────────────────────────────
@@ -675,9 +699,11 @@ function switchTab(tab) {
   document.getElementById('winners-view').classList.toggle('active', tab === 'winners');
   document.getElementById('admin-view').classList.toggle('active', tab === 'admin');
   if (tab === 'admin') {
-    if (!adminUnlocked) { document.getElementById('pwOverlay').style.display = 'flex'; }
-    else if (!state) { loadAndRenderAdmin(); }
-    else {
+    if (!adminUnlocked) {
+      document.getElementById('pwOverlay').style.display = 'flex';
+    } else if (!state) {
+      loadAndRenderAdmin();
+    } else {
       document.getElementById('adminLoading').style.display = 'none';
       document.getElementById('adminContent').style.display = 'block';
       renderAdmin();
@@ -705,6 +731,7 @@ function checkPw() {
     var correct = state.adminPassword || '1234';
     if (val === correct) {
       adminUnlocked = true;
+      sessionStorage.setItem('adminOK', '1');
       document.getElementById('pwOverlay').style.display = 'none';
       document.getElementById('pwInput').value = '';
       document.getElementById('pwErr').style.display = 'none';
@@ -863,6 +890,7 @@ function loadAndRenderAdmin() {
     document.getElementById('adminLoading').style.display = 'none';
     document.getElementById('adminContent').style.display = 'block';
     renderAdmin();
+    restoreCardStates();
   });
 }
 
@@ -913,7 +941,7 @@ function proceedFree() {
 
 function verifyCode() {
   var name = document.getElementById('clientName').value.trim();
-  var code = document.getElementById('clientCode').value.trim().toUpperCase();
+  var code = document.getElementById('clientCode').value.replace(/\s/g,'').toUpperCase();
   if (!name) { showClientMsg('Introdu-ti numele!', 'error'); return; }
   if (state.locked) { showClientMsg('Inregistrarile sunt inchise momentan.', 'error'); return; }
   if (!code) { showClientMsg('Introdu codul primit de la frizer!', 'error'); return; }
