@@ -153,12 +153,12 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
   100%{box-shadow:0 0 0 0 rgba(201,168,76,0);}
 }
 @keyframes continuousPulseNum {
-  0%{text-shadow:0 0 8px rgba(201,168,76,.8),0 0 20px rgba(201,168,76,.4);}
-  50%{text-shadow:0 0 20px rgba(201,168,76,1),0 0 40px rgba(201,168,76,.7),0 0 60px rgba(201,168,76,.4);}
-  100%{text-shadow:0 0 8px rgba(201,168,76,.8),0 0 20px rgba(201,168,76,.4);}
+  0%{text-shadow:0 0 6px rgba(201,168,76,.6),0 0 12px rgba(201,168,76,.3);}
+  50%{text-shadow:0 0 12px rgba(201,168,76,.9),0 0 22px rgba(201,168,76,.5),0 0 32px rgba(201,168,76,.25);}
+  100%{text-shadow:0 0 6px rgba(201,168,76,.6),0 0 12px rgba(201,168,76,.3);}
 }
-.pulse-constant{animation:continuousPulse 1.8s ease infinite!important;}
-.pulse-num-constant{animation:continuousPulseNum 1.8s ease infinite!important;}
+.pulse-constant{animation:continuousPulse 2.8s ease infinite!important;}
+.pulse-num-constant{animation:continuousPulseNum 2.8s ease infinite!important;}
 .winner-card-num{animation:pulseGold 2s ease infinite 1s;}
 .winner-card{background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;}
 .winner-card-num{font-family:Bebas Neue,sans-serif;font-size:52px;color:var(--gold);line-height:1;min-width:60px;text-align:center;background:var(--surface2);border:1px solid #1a3020;border-radius:8px;padding:4px 10px;}
@@ -1147,38 +1147,11 @@ function showCountdownThenSuccess(num, name) {
   var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
   showClientMsg('', '');
 
-  // Create countdown overlay
-  var cd = document.createElement('div');
-  cd.id = 'countdownOverlay';
-  cd.style.cssText = 'text-align:center;padding:40px 16px;';
-  cd.innerHTML = '<div style="font-size:13px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;">Se înregistrează numărul</div>' +
-    '<div id="cdNum" style="font-family:Bebas Neue,sans-serif;font-size:120px;color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(201,168,76,.8);transition:transform .15s,opacity .15s;"></div>';
-  clientContent.appendChild(cd);
-
-  var counts = [3, 2, 1];
-  var idx = 0;
-  function tick() {
-    var el = document.getElementById('cdNum');
-    if (!el) return;
-    if (idx < counts.length) {
-      el.style.opacity = '0';
-      el.style.transform = 'scale(1.5)';
-      el.textContent = counts[idx];
-      setTimeout(function() {
-        el.style.opacity = '1';
-        el.style.transform = 'scale(1)';
-
-      }, 80);
-      idx++;
-      setTimeout(tick, 900);
-    } else {
-      // Remove countdown, show success
-      var cdEl = document.getElementById('countdownOverlay');
-      if (cdEl) cdEl.remove();
-      showSuccessCard(num, name);
-    }
-  }
-  tick();
+  // Direct la success
+  showSuccessCard(num, name);
+  setTimeout(function(){ launchStars(window.innerWidth/2, window.innerHeight*0.35); }, 150);
+  setTimeout(function(){ launchStars(window.innerWidth*0.15, window.innerHeight*0.5); }, 400);
+  setTimeout(function(){ launchStars(window.innerWidth*0.85, window.innerHeight*0.5); }, 600);
 }
 
 // ── SUCCESS ────────────────────────────────────────
