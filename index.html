@@ -6,15 +6,16 @@
 <title>Tombola – Tuns Gratis</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
-:root{--gold:#c9a84c;--gold-light:#e8cc7a;--dark:#060f09;--surface:#0d1f12;--surface2:#122918;--text:#e8f5ee;--muted:#5a7a64;}
+#heroSection{visibility:hidden;}
+:root{--gold:#c9a84c;--gold-light:#e8cc7a;--dark:#000000;--surface:#111111;--surface2:#1a1a1a;--text:#f0e6cc;--muted:#7a6a4a;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
 @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
-#clientLoading{position:fixed;top:0;left:0;right:0;bottom:0;background:#060f09;z-index:9999;display:flex;align-items:center;justify-content:center;}
-#clientLoading .spinner-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-#clientLoading .spinner-ring{width:60px;height:60px;border:5px solid #1a3020;border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;}
-#clientLoading .spinner-txt{color:#5a7a64;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
-.tabs{display:flex;background:var(--surface);border-bottom:1px solid #1a3020;position:sticky;top:0;z-index:20;}
+#clientLoading{position:fixed;top:0;left:0;right:0;bottom:0;background:#000000;z-index:9999;display:flex;align-items:center;justify-content:center;padding-top:70%;}
+#clientLoading .spinner-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+#clientLoading .spinner-ring{width:44px;height:44px;border:4px solid #2a2a2a;border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;}
+#clientLoading .spinner-txt{color:#7a6a4a;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid #2a2a2a;position:sticky;top:0;z-index:20;}
 .tab-btn{flex:1;padding:14px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.5px;transition:all .2s;border-bottom:2px solid transparent;}
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
 .tab-panel{display:none;}.tab-panel.active{display:block;}
@@ -23,18 +24,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);m
 .hero-icon{font-size:52px;margin-bottom:12px;color:var(--gold);filter:drop-shadow(0 0 24px rgba(201,168,76,.6));}
 .hero h1{font-family:Bebas Neue,sans-serif;font-size:44px;letter-spacing:3px;color:var(--gold);line-height:1.1;}
 .hero p{color:var(--muted);font-size:13px;margin-top:8px;line-height:1.6;} .hero-line{width:48px;height:2px;background:var(--gold);margin:12px auto 0;border-radius:2px;}
-.timer-box{background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:16px 20px;text-align:center;margin-bottom:16px;}
+.timer-box{background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:16px 20px;text-align:center;margin-bottom:16px;}
 .timer-label{font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
 .timer-display{display:flex;justify-content:center;gap:10px;}
 .timer-unit{display:flex;flex-direction:column;align-items:center;}
-.timer-num{font-family:Bebas Neue,sans-serif;font-size:42px;color:var(--gold);line-height:1;background:var(--surface2);border:1px solid #1a3020;border-radius:8px;padding:6px 14px;min-width:62px;}
+.timer-num{font-family:Bebas Neue,sans-serif;font-size:42px;color:var(--gold);line-height:1;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:6px 14px;min-width:62px;}
 .timer-sub{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;}
 .timer-sep{font-family:Bebas Neue,sans-serif;font-size:34px;color:var(--muted);padding-top:4px;}
-.step{background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:18px;margin-bottom:14px;}
+.step{background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:18px;margin-bottom:14px;}
 .step-title{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
 .step-title span{background:var(--gold);color:#0f0e0d;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:6px;}
 .field-label{display:block;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
-.field-input{width:100%;background:var(--surface2);border:1px solid #1a3020;border-radius:8px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:12px;}
+.field-input{width:100%;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:12px;}
 .field-input:focus{border-color:var(--gold);}
 .code-input{text-align:center;font-family:Bebas Neue,sans-serif;font-size:28px;letter-spacing:6px;text-transform:uppercase;margin-bottom:0;}
 .btn{width:100%;padding:13px;border-radius:8px;border:none;font-family:Bebas Neue,sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:12px;display:block;}
@@ -44,10 +45,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);m
 .btn-sm{width:auto;padding:9px 18px;font-size:14px;letter-spacing:.5px;font-family:'DM Sans',sans-serif;font-weight:600;border-radius:6px;border:none;cursor:pointer;transition:all .2s;margin-top:0;}
 .picker-label{font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:9px;}
 .grid{display:grid;gap:4px;margin-bottom:14px;}
-.num-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid #1a3020;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;user-select:none;color:var(--muted);}
+.num-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid #2a2a2a;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;user-select:none;color:var(--muted);}
 .num-cell:hover:not(.taken){border-color:var(--gold);color:var(--gold);}
 .num-cell.selected{background:var(--gold);border-color:var(--gold);color:#0f0e0d;}
-.num-cell.taken{background:#0a1a0e;color:#1a3020;cursor:not-allowed;border-color:#152a1a;}
+.num-cell.taken{background:#111111;color:#2a2a2a;cursor:not-allowed;border-color:#222222;}
 .preview-box{background:var(--surface2);border:2px solid var(--gold);border-radius:8px;padding:14px;text-align:center;margin-bottom:14px;}
 .preview-num{font-family:Bebas Neue,sans-serif;font-size:60px;color:var(--gold);line-height:1;}
 .preview-lbl{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
@@ -55,7 +56,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);m
 .msg-success{background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);color:#2ecc71;}
 .msg-error{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#e74c3c;}
 .msg-info{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.28);color:var(--gold);}
-.info-box{background:var(--surface);border:1px solid #1a3020;border-radius:10px;padding:13px 15px;font-size:13px;color:var(--muted);line-height:1.6;text-align:center;}
+.info-box{background:var(--surface);border:1px solid #2a2a2a;border-radius:10px;padding:13px 15px;font-size:13px;color:var(--muted);line-height:1.6;text-align:center;}
 .info-box strong{color:var(--text);}
 .step.locked{opacity:.4;pointer-events:none;}.step:not(.locked){opacity:1;pointer-events:auto;}
 .step.locked .step-title span{background:var(--muted);}
@@ -81,14 +82,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);m
 .admin-header h2{font-family:Bebas Neue,sans-serif;font-size:28px;letter-spacing:2px;color:var(--gold);}
 .admin-header p{color:var(--muted);font-size:12px;margin-top:3px;}
 .stats-row{display:flex;gap:8px;margin-bottom:14px;}
-.stat{flex:1;background:var(--surface);border:1px solid #1a3020;border-radius:10px;padding:12px;text-align:center;}
+.stat{flex:1;background:var(--surface);border:1px solid #2a2a2a;border-radius:10px;padding:12px;text-align:center;}
 .stat-num{font-family:Bebas Neue,sans-serif;font-size:32px;color:var(--gold);line-height:1;}
 .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
-.card{background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:16px;margin-bottom:14px;}
+.card{background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin-bottom:14px;}
 .card h3{font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--gold-light);margin-bottom:13px;}
 .spin-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
 .spin-row label{font-size:13px;color:var(--muted);white-space:nowrap;}
-.spin-row input[type=number]{width:70px;background:var(--surface2);border:1px solid #1a3020;border-radius:6px;padding:7px 9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-align:center;}
+.spin-row input[type=number]{width:70px;background:var(--surface2);border:1px solid #2a2a2a;border-radius:6px;padding:7px 9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-align:center;}
 .cod-chip{display:flex;align-items:center;gap:8px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:6px 12px;}
 .cod-chip-val{font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);}
 .cod-chip-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0 2px;line-height:1;}
@@ -104,25 +105,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);m
 .h-num{font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);}
 .h-date{font-size:11px;color:var(--muted);}
 .participants-table{width:100%;border-collapse:collapse;font-size:13px;}
-.participants-table th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:0 0 7px;border-bottom:1px solid #1a3020;}
-.participants-table td{padding:8px 0;border-bottom:1px solid #152a1a;color:var(--text);}
-.num-badge{display:inline-block;background:var(--surface2);border:1px solid #1a3020;border-radius:4px;padding:2px 7px;font-family:Bebas Neue,sans-serif;font-size:17px;color:var(--gold);}
+.participants-table th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:0 0 7px;border-bottom:1px solid #2a2a2a;}
+.participants-table td{padding:8px 0;border-bottom:1px solid #222222;color:var(--text);}
+.num-badge{display:inline-block;background:var(--surface2);border:1px solid #2a2a2a;border-radius:4px;padding:2px 7px;font-family:Bebas Neue,sans-serif;font-size:17px;color:var(--gold);}
 .num-badge.won{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4);}
 .tag-win{display:inline-block;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:10px;border-radius:20px;padding:2px 8px;}
 .btn-red{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.35);color:#e74c3c;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 14px;border-radius:6px;cursor:pointer;}
 .btn-red:hover{background:rgba(192,57,43,.22);}
-.divider{height:1px;background:#1a3020;margin:12px 0;}
+.divider{height:1px;background:#2a2a2a;margin:12px 0;}
 .empty-state{text-align:center;color:var(--muted);padding:16px 0;font-size:13px;}
 .lock-row{display:flex;align-items:center;gap:10px;}
 .toggle{position:relative;display:inline-block;width:42px;height:22px;}
 .toggle input{opacity:0;width:0;height:0;}
-.slider{position:absolute;cursor:pointer;inset:0;background:#1a3020;border-radius:22px;transition:.3s;}
+.slider{position:absolute;cursor:pointer;inset:0;background:#2a2a2a;border-radius:22px;transition:.3s;}
 .slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:.3s;}
 input:checked+.slider{background:var(--gold);}
 input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 
 /* --- COD REQUIRE ROW --- */
-.cod-require-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid #1a3020;border-radius:8px;padding:10px 12px;margin-bottom:12px;}
+.cod-require-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;margin-bottom:12px;}
 .cod-require-info{flex:1;margin-right:12px;}
 .cod-require-title{font-size:13px;font-weight:600;color:var(--text);}
 .cod-require-hint{font-size:11px;color:var(--muted);margin-top:2px;transition:color .2s;}
@@ -130,7 +131,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 #coduriSection{overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .3s ease;max-height:500px;opacity:1;}
 #coduriSection.hidden{max-height:0;opacity:0;pointer-events:none;}
 
-.history-tombola{background:var(--surface2);border:1px solid #1a3020;border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+.history-tombola{background:var(--surface2);border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;margin-bottom:8px;}
 .history-tombola-header{display:flex;justify-content:space-between;align-items:center;}
 .history-tombola-title{font-family:Bebas Neue,sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;}
 .history-tombola-date{font-size:11px;color:var(--muted);}
@@ -165,14 +166,14 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 .pulse-constant{animation:continuousPulse 2.8s ease infinite!important;}
 .pulse-num-constant{animation:continuousPulseNum 2.8s ease infinite!important;}
 .winner-card-num{animation:pulseGold 2s ease infinite 1s;}
-.winner-card{background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;}
-.winner-card-num{font-family:Bebas Neue,sans-serif;font-size:52px;color:var(--gold);line-height:1;min-width:60px;text-align:center;background:var(--surface2);border:1px solid #1a3020;border-radius:8px;padding:4px 10px;}
+.winner-card{background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;}
+.winner-card-num{font-family:Bebas Neue,sans-serif;font-size:52px;color:var(--gold);line-height:1;min-width:60px;text-align:center;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:4px 10px;}
 .winner-card-info{flex:1;}
 .winner-card-name{font-size:16px;color:var(--text);font-weight:600;}
 .winner-card-date{font-size:11px;color:var(--muted);margin-top:3px;}
-.winners-round{background:var(--surface);border:1px solid #1a3020;border-radius:10px;padding:14px;margin-bottom:10px;}
+.winners-round{background:var(--surface);border:1px solid #2a2a2a;border-radius:10px;padding:14px;margin-bottom:10px;}
 .winners-round-title{font-family:Bebas Neue,sans-serif;font-size:16px;color:var(--gold-light);letter-spacing:1px;margin-bottom:10px;}
-.winners-round-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #152a1a;}
+.winners-round-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #222222;}
 .winners-round-item:last-child{border-bottom:none;}
 .winners-round-num{font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);min-width:36px;}
 .winners-round-name{font-size:13px;color:var(--text);}
@@ -229,14 +230,14 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 
 .admin-section-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:6px;padding-left:2px;font-family:'DM Sans',sans-serif;font-weight:600;}
 .pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
-.pw-box{background:var(--surface);border:1px solid #1a3020;border-radius:14px;padding:26px 22px;width:290px;text-align:center;}
+.pw-box{background:var(--surface);border:1px solid #2a2a2a;border-radius:14px;padding:26px 22px;width:290px;text-align:center;}
 .pw-box h3{font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:5px;}
 .pw-box p{font-size:13px;color:var(--muted);margin-bottom:14px;}
-.pw-box input{width:100%;background:var(--surface2);border:1px solid #1a3020;border-radius:8px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-align:center;margin-bottom:11px;}
+.pw-box input{width:100%;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-align:center;margin-bottom:11px;}
 .pw-box input:focus{border-color:var(--gold);}
 .pw-err{color:#e74c3c;font-size:12px;margin-top:7px;display:none;}
 .loading{text-align:center;padding:30px;color:var(--muted);font-size:13px;}
-.sync-indicator{position:fixed;bottom:12px;right:12px;background:var(--surface);border:1px solid #1a3020;border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);display:none;z-index:50;}
+.sync-indicator{position:fixed;bottom:12px;right:12px;background:var(--surface);border:1px solid #2a2a2a;border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);display:none;z-index:50;}
 .sync-indicator.show{display:block;}
 
 /* --- GENERATE COD BUTTON improved --- */
@@ -296,7 +297,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
     </div>
   </div>
   <div id="participantCountBox" style="margin-bottom:16px;display:none;">
-    <div style="background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:14px 16px;text-align:center;">
+    <div style="background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:14px 16px;text-align:center;">
       <div style="font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Înscriși până acum</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
           <span style="font-family:Bebas Neue,sans-serif;font-size:26px;color:var(--gold);letter-spacing:2px;" id="approxCount"></span>
@@ -309,7 +310,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
   <p id="infoLineClient" style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:14px;display:none;">Ai nevoie de un <strong style="color:var(--text);">cod unic</strong> primit de la frizer.</p>
   <div id="clientMsg"></div>
 
-  <div id="clientContent" style="display:none;">
+  <div id="clientContent" style="opacity:0;transition:opacity 0.3s ease;">
 
     <div id="nameStep" class="step">
       <div class="step-title"><span>1</span> Numele tau</div>
@@ -453,7 +454,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
           <button class="btn" onclick="downloadBackup()" style="background:var(--surface2);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:13px;letter-spacing:1px;">⬇ DESCARCA BACKUP JSON</button>
         </div>
         <div style="margin-top:8px;">
-          <label class="btn" style="background:var(--surface2);border:1px solid #1a3020;color:var(--muted);font-size:13px;letter-spacing:1px;cursor:pointer;text-align:center;padding:13px;border-radius:8px;display:block;">
+          <label class="btn" style="background:var(--surface2);border:1px solid #2a2a2a;color:var(--muted);font-size:13px;letter-spacing:1px;cursor:pointer;text-align:center;padding:13px;border-radius:8px;display:block;">
             ⬆ INCARCA BACKUP JSON
             <input type="file" accept=".json" onchange="uploadBackup(event)" style="display:none;" />
           </label>
@@ -484,11 +485,11 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
       <div class="card-body collapsed" id="body-card-timer">
         <div class="spin-row">
           <label>Data inchidere:</label>
-          <input type="datetime-local" id="timerEnd" style="background:var(--surface2);border:1px solid #1a3020;border-radius:6px;padding:7px 9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;flex:1;" />
+          <input type="datetime-local" id="timerEnd" style="background:var(--surface2);border:1px solid #2a2a2a;border-radius:6px;padding:7px 9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;flex:1;" />
         </div>
         <div style="display:flex;gap:8px;margin-top:4px;">
           <button class="btn-sm btn-gold" onclick="setTimer()" style="flex:1;">Seteaza Timer</button>
-          <button class="btn-sm" onclick="clearTimer()" style="flex:1;background:var(--surface2);border:1px solid #1a3020;color:var(--muted);">Opreste</button>
+          <button class="btn-sm" onclick="clearTimer()" style="flex:1;background:var(--surface2);border:1px solid #2a2a2a;color:var(--muted);">Opreste</button>
         </div>
         <div id="timerAdminInfo" style="font-size:11px;color:var(--muted);margin-top:7px;text-align:center;"></div>
       </div>
@@ -940,7 +941,7 @@ function startTimer() {
 // Randeaza UI client din state-ul deja incarcat (fara request nou)
 function renderClientFromState() {
   document.getElementById('clientLoading').style.display = 'none';
-  document.getElementById('clientContent').style.display = 'block';
+  document.getElementById('clientContent').style.opacity = '1';
   var hs = document.getElementById('heroSection'); if (hs) hs.style.display = 'block';
   var hst = document.getElementById('heroSubtitle'); if (hst) hst.style.display = 'block';
   var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'block';
@@ -973,11 +974,11 @@ function renderClientFromState() {
 
 function loadAndRenderClient() {
   document.getElementById('clientLoading').style.display = 'block';
-  document.getElementById('clientContent').style.display = 'none';
+  document.getElementById('clientContent').style.opacity = '0';
   showClientMsg('', '');
   loadState(function() {
     document.getElementById('clientLoading').style.display = 'none';
-    document.getElementById('clientContent').style.display = 'block';
+    document.getElementById('clientContent').style.opacity = '1';
     var hs = document.getElementById('heroSection'); if (hs) hs.style.display = 'block';
     var hst = document.getElementById('heroSubtitle'); if (hst) hst.style.display = 'block';
     var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'block';
@@ -1227,7 +1228,7 @@ function showSuccessCard(num, name) {
   if (existing) existing.remove();
   var card = document.createElement('div');
   card.id = 'successCard';
-  card.style.cssText = 'background:var(--surface);border:1px solid #1a3020;border-radius:12px;padding:28px 16px;text-align:center;margin-bottom:14px;';
+  card.style.cssText = 'background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:28px 16px;text-align:center;margin-bottom:14px;';
   card.innerHTML =
     '<div style="font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Numarul tau</div>' +
     '<div class="pulse-num-constant" style="font-family:Bebas Neue,sans-serif;font-size:80px;color:var(--gold);line-height:1;">' + num + '</div>' +
@@ -1524,7 +1525,7 @@ function startFlyingPhase(overlay, eligible, picked) {
   titleEl.textContent = 'SE EXTRAGE...';
   overlay.appendChild(titleEl);
   var timerBar = document.createElement('div');
-  timerBar.style.cssText = 'position:absolute;bottom:80px;left:10%;width:80%;height:5px;background:#1a3020;border-radius:3px;z-index:5;';
+  timerBar.style.cssText = 'position:absolute;bottom:80px;left:10%;width:80%;height:5px;background:#2a2a2a;border-radius:3px;z-index:5;';
   var timerFill = document.createElement('div');
   timerFill.id = 'timerFill';
   timerFill.style.cssText = 'height:100%;width:100%;background:var(--gold);border-radius:3px;';
@@ -1768,6 +1769,19 @@ function resetClientUI() {
 }
 
 // ── INIT ──────────────────────────────────────────
+// Asteapta fonturile inainte sa arate titlul
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function() {
+    var h = document.getElementById('heroSection');
+    if (h) h.style.visibility = 'visible';
+  });
+} else {
+  // Fallback pentru browsere vechi
+  setTimeout(function() {
+    var h = document.getElementById('heroSection');
+    if (h) h.style.visibility = 'visible';
+  }, 500);
+}
 loadAndRenderClient();
 </script>
 </body>
