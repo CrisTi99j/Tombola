@@ -1594,7 +1594,7 @@ function revealWinners(overlay, picked) {
     var p = picked[idx];
     var chip = document.createElement('div');
     chip.style.cssText = 'text-align:center;';
-    chip.innerHTML = '<div class="draw-winner-chip">' + p.number + '</div><div class="draw-winner-name">' + p.name + '</div>';
+    chip.innerHTML = '<div class="draw-winner-chip">' + p.number + '</div>';
     grid.appendChild(chip);
     idx++;
     setTimeout(showNext, 900);
@@ -1605,7 +1605,8 @@ function revealWinners(overlay, picked) {
 // ── DELETE PARTICIPANT ─────────────────────────────
 function deleteParticipant(index) {
   var p = state.participants[index];
-  if (!confirm('Stergi participantul ' + p.name + ' cu numarul ' + p.number + '? Numarul va fi eliberat.')) return;
+  var answer = prompt('Scrie "DA" pentru a sterge pe ' + p.name + ' (Nr.' + p.number + '):');
+  if (answer !== 'DA') { return; }
   state.participants.splice(index, 1);
   var tnIdx = state.takenNumbers.indexOf(p.number);
   if (tnIdx >= 0) state.takenNumbers.splice(tnIdx, 1);
