@@ -197,15 +197,18 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
   transition:none;
 }
 .draw-show-winners{
-  display:flex;flex-wrap:wrap;justify-content:center;
-  gap:14px;padding:20px;max-width:430px;
+  display:grid;
+  grid-template-columns:repeat(5,76px);
+  gap:14px;padding:20px;
+  justify-content:center;
 }
 .draw-winner-chip{
-  font-family:Bebas Neue,sans-serif;font-size:28px;color:#0f0e0d;
+  font-family:Bebas Neue,sans-serif;font-size:24px;color:#0f0e0d;
   background:var(--gold);border-radius:10px;
-  width:72px;height:72px;
+  width:76px;height:76px;
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
+  flex-shrink:0;flex-grow:0;
+  overflow:hidden;
   animation:winnerPop .4s cubic-bezier(.175,.885,.32,1.275);
   box-shadow:0 0 30px rgba(201,168,76,.7);
 }
@@ -1565,7 +1568,7 @@ function revealWinners(overlay, picked) {
   bg.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.97);';
   overlay.appendChild(bg);
   var titleEl = document.createElement('div');
-  titleEl.style.cssText = 'position:relative;z-index:5;font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);text-align:center;padding-top:50px;margin-bottom:30px;';
+  titleEl.style.cssText = 'position:relative;z-index:5;font-family:Bebas Neue,sans-serif;font-size:36px;letter-spacing:6px;color:var(--gold);text-align:center;padding-top:50px;margin-bottom:30px;text-shadow:0 0 20px rgba(201,168,76,.6);';
   titleEl.textContent = '🏆 CASTIGATORI 🏆';
   overlay.appendChild(titleEl);
   var grid = document.createElement('div');
@@ -1593,8 +1596,8 @@ function revealWinners(overlay, picked) {
     }
     var p = picked[idx];
     var chip = document.createElement('div');
-    chip.style.cssText = 'text-align:center;';
-    chip.innerHTML = '<div class="draw-winner-chip">' + p.number + '</div>';
+    chip.className = 'draw-winner-chip';
+    chip.textContent = p.number;
     grid.appendChild(chip);
     idx++;
     setTimeout(showNext, 900);
