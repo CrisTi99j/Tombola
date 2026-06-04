@@ -1491,139 +1491,302 @@ function drawWinners() {
 }
 
 function startDrawShow(eligible, picked) {
+  // ── OVERLAY PRINCIPAL ─────────────────────────────
   var overlay = document.createElement('div');
-  overlay.className = 'draw-show-overlay';
   overlay.id = 'drawShowOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:16px;';
   document.body.appendChild(overlay);
-  var phase = 0;
-  var counts = ['3', '2', '1', 'START!'];
-  var cdWrap = document.createElement('div');
-  cdWrap.style.cssText = 'text-align:center;';
-  cdWrap.innerHTML = '<div class="draw-show-title">Extragerea incepe in</div><div class="draw-show-countdown" id="dsCount">3</div>';
-  overlay.appendChild(cdWrap);
-  function runCountdown() {
-    var el = document.getElementById('dsCount');
-    if (!el) return;
-    el.style.animation = 'none';
-    void el.offsetHeight;
-    el.style.animation = 'cdPop .5s ease';
-    el.textContent = counts[phase];
-    phase++;
-    if (phase < counts.length) {
-      setTimeout(runCountdown, 900);
-    } else {
-      setTimeout(function() { startFlyingPhase(overlay, eligible, picked); }, 700);
-    }
-  }
-  runCountdown();
-}
 
-function startFlyingPhase(overlay, eligible, picked) {
-  overlay.innerHTML = '';
-  var titleEl = document.createElement('div');
-  titleEl.style.cssText = 'position:absolute;top:20px;width:100%;text-align:center;font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:3px;color:var(--muted);z-index:5;';
-  titleEl.textContent = 'SE EXTRAGE...';
-  overlay.appendChild(titleEl);
-  var timerBar = document.createElement('div');
-  timerBar.style.cssText = 'position:absolute;bottom:80px;left:10%;width:80%;height:5px;background:#2a2a2a;border-radius:3px;z-index:5;';
-  var timerFill = document.createElement('div');
-  timerFill.id = 'timerFill';
-  timerFill.style.cssText = 'height:100%;width:100%;background:var(--gold);border-radius:3px;';
-  timerBar.appendChild(timerFill);
-  overlay.appendChild(timerBar);
-  var timerText = document.createElement('div');
-  timerText.id = 'timerText';
-  timerText.style.cssText = 'position:absolute;bottom:90px;width:100%;text-align:center;font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--gold);z-index:5;';
-  timerText.textContent = '15';
-  overlay.appendChild(timerText);
-  var W = window.innerWidth, H = window.innerHeight;
-  var flyingEls = [];
+  // Titlu
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;text-align:center;';
+  title.textContent = 'EXTRAGERE TOMBOLA';
+  overlay.appendChild(title);
+
+  // ── RAMA DE SUS (cu gaura jos) ──────────────────
+  var frameTop = document.createElement('div');
+  frameTop.id = 'frameTop';
+  frameTop.style.cssText = [
+    'width:100%;max-width:360px;',
+    'background:#111;',
+    'border:2px solid rgba(201,168,76,.5);',
+    'border-bottom:none;',
+    'border-radius:14px 14px 0 0;',
+    'padding:12px 10px 0;',
+    'position:relative;',
+    'min-height:180px;',
+    'display:flex;flex-wrap:wrap;gap:5px;',
+    'align-content:flex-start;',
+    'justify-content:center;',
+    'overflow:hidden;'
+  ].join('');
+
+  // Gaura jos din rama de sus
+  var holeTop = document.createElement('div');
+  holeTop.style.cssText = 'position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:40px;height:8px;background:#000;border-radius:4px 4px 0 0;z-index:5;';
+  frameTop.appendChild(holeTop);
+
+  // Numerele in rama de sus
   eligible.forEach(function(p) {
-    var el = document.createElement('div');
-    el.className = 'flying-num';
-    el.textContent = p.number;
-    var x = 20 + Math.random() * (W - 80);
-    var y = 60 + Math.random() * (H - 160);
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    overlay.appendChild(el);
-    flyingEls.push({
-      el: el, x: x, y: y,
-      vx: (Math.random() - 0.5) * 5,
-      vy: (Math.random() - 0.5) * 5,
-      rot: 0,
-      vr: (Math.random() - 0.5) * 6
-    });
+    var chip = document.createElement('div');
+    chip.className = 'draw-chip-top';
+    chip.id = 'chip-' + p.number;
+    chip.textContent = p.number;
+    chip.style.cssText = [
+      'font-family:Bebas Neue,sans-serif;font-size:15px;',
+      'color:var(--gold);',
+      'background:#1a1a1a;',
+      'border:1px solid rgba(201,168,76,.35);',
+      'border-radius:6px;',
+      'padding:4px 8px;',
+      'min-width:34px;text-align:center;',
+      'transition:opacity .3s;'
+    ].join('');
+    frameTop.appendChild(chip);
   });
-  var startTime = Date.now();
-  var duration = 15000;
-  var animActive = true;
-  function animateFlying() {
-    if (!animActive) return;
-    var elapsed = Date.now() - startTime;
-    var progress = Math.min(elapsed / duration, 1);
-    var tf = document.getElementById('timerFill');
-    var tt = document.getElementById('timerText');
-    if (tf) tf.style.width = (100 - progress * 100) + '%';
-    if (tt) tt.textContent = Math.ceil((duration - elapsed) / 1000);
-    flyingEls.forEach(function(f) {
-      f.x += f.vx; f.y += f.vy; f.rot += f.vr;
-      if (f.x < 0 || f.x > W - 60) { f.vx *= -1; f.x = Math.max(0, Math.min(W-60, f.x)); }
-      if (f.y < 50 || f.y > H - 100) { f.vy *= -1; f.y = Math.max(50, Math.min(H-100, f.y)); }
-      f.el.style.left = f.x + 'px';
-      f.el.style.top = f.y + 'px';
-      f.el.style.transform = 'rotate(' + f.rot + 'deg)';
-    });
-    if (progress < 1) {
-      requestAnimationFrame(animateFlying);
-    } else {
-      animActive = false;
-      revealWinners(overlay, picked);
-    }
-  }
-  animateFlying();
+  overlay.appendChild(frameTop);
+
+  // ── CONECTOR VIZUAL (gaura sus/jos) ─────────────
+  var connector = document.createElement('div');
+  connector.style.cssText = 'width:2px;height:0;background:rgba(201,168,76,.4);position:relative;z-index:10;transition:height .3s;';
+  // Particula care cade
+  var fallingDot = document.createElement('div');
+  fallingDot.id = 'fallingDot';
+  fallingDot.style.cssText = 'display:none;position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:22px;background:var(--gold);border-radius:4px;font-family:Bebas Neue,sans-serif;font-size:13px;color:#000;display:none;align-items:center;justify-content:center;z-index:20;';
+  connector.appendChild(fallingDot);
+  overlay.appendChild(connector);
+
+  // ── RAMA DE JOS (cu gaura sus) ───────────────────
+  var frameBot = document.createElement('div');
+  frameBot.id = 'frameBot';
+  frameBot.style.cssText = [
+    'width:100%;max-width:360px;',
+    'background:#111;',
+    'border:2px solid rgba(201,168,76,.5);',
+    'border-top:none;',
+    'border-radius:0 0 14px 14px;',
+    'padding:10px 10px 12px;',
+    'position:relative;',
+    'min-height:70px;',
+    'display:flex;flex-wrap:wrap;gap:6px;',
+    'align-content:flex-start;',
+    'justify-content:center;',
+  ].join('');
+
+  // Gaura sus din rama de jos
+  var holeBot = document.createElement('div');
+  holeBot.style.cssText = 'position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:40px;height:8px;background:#000;border-radius:0 0 4px 4px;z-index:5;';
+  frameBot.appendChild(holeBot);
+  overlay.appendChild(frameBot);
+
+  // ── BUTON EXTRAGERE ──────────────────────────────
+  var btnExtrage = document.createElement('button');
+  btnExtrage.id = 'btnExtrage';
+  btnExtrage.textContent = 'EXTRAGERE';
+  btnExtrage.style.cssText = [
+    'margin-top:18px;',
+    'padding:13px 40px;',
+    'border-radius:8px;',
+    'border:none;',
+    'font-family:Bebas Neue,sans-serif;',
+    'font-size:18px;letter-spacing:3px;',
+    'background:linear-gradient(135deg,#888,#ccc,#888);',
+    'color:#111;',
+    'cursor:pointer;',
+    'box-shadow:0 2px 12px rgba(200,200,200,.2);',
+    'transition:opacity .2s;'
+  ].join('');
+  btnExtrage.onclick = function() { startFallingAnimation(eligible, picked, overlay, frameTop, frameBot, connector, fallingDot, btnExtrage); };
+  overlay.appendChild(btnExtrage);
 }
 
-function revealWinners(overlay, picked) {
-  overlay.innerHTML = '';
-  var bg = document.createElement('div');
-  bg.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.97);';
-  overlay.appendChild(bg);
-  var titleEl = document.createElement('div');
-  titleEl.style.cssText = 'position:relative;z-index:5;font-family:Bebas Neue,sans-serif;font-size:36px;letter-spacing:6px;color:var(--gold);text-align:center;padding-top:50px;margin-bottom:30px;text-shadow:0 0 20px rgba(201,168,76,.6);';
-  titleEl.textContent = '🏆 CASTIGATORI 🏆';
-  overlay.appendChild(titleEl);
+// ── ANIMATIE CADERE ────────────────────────────────
+function startFallingAnimation(eligible, picked, overlay, frameTop, frameBot, connector, fallingDot, btnExtrage) {
+  btnExtrage.disabled = true;
+  btnExtrage.style.opacity = '0.4';
+
+  // Countdown 3..2..1
+  var cdOverlay = document.createElement('div');
+  cdOverlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;border-radius:14px;font-family:Bebas Neue,sans-serif;font-size:100px;color:var(--gold);';
+  overlay.appendChild(cdOverlay);
+  var cdNum = 3;
+  cdOverlay.textContent = cdNum;
+  var cdInt = setInterval(function() {
+    cdNum--;
+    if (cdNum > 0) {
+      cdOverlay.textContent = cdNum;
+    } else {
+      clearInterval(cdInt);
+      cdOverlay.remove();
+      runFalling();
+    }
+  }, 900);
+
+  function runFalling() {
+    // Fa conexiunea vizibila
+    connector.style.height = '12px';
+
+    // Toate numerele din frameTop devin vizibile
+    var allChips = frameTop.querySelectorAll('.draw-chip-top');
+    var pickedNums = picked.map(function(p){ return p.number; });
+
+    // Timer 15s - cad numerele nepremiate unul cate unul
+    var nonWinners = eligible.filter(function(p){ return pickedNums.indexOf(p.number) < 0; });
+    var winners = picked.slice();
+
+    // Amestecam nonWinners
+    for (var i = nonWinners.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i+1));
+      var tmp = nonWinners[i]; nonWinners[i] = nonWinners[j]; nonWinners[j] = tmp;
+    }
+
+    var totalDuration = 15000;
+    var interval = nonWinners.length > 0 ? Math.floor((totalDuration * 0.85) / nonWinners.length) : 500;
+    interval = Math.max(150, Math.min(interval, 800));
+
+    var fallenCount = 0;
+
+    function dropNext() {
+      if (fallenCount >= nonWinners.length) {
+        // Dupa ce au cazut toate non-castigatoarele, cad si castigatorii
+        setTimeout(function(){ dropWinners(winners); }, 400);
+        return;
+      }
+      var p = nonWinners[fallenCount];
+      var chip = document.getElementById('chip-' + p.number);
+      if (chip) {
+        chip.style.opacity = '0';
+        chip.style.transform = 'scale(0)';
+        setTimeout(function(){ if(chip.parentNode) chip.parentNode.removeChild(chip); }, 300);
+      }
+      fallenCount++;
+      setTimeout(dropNext, interval);
+    }
+    dropNext();
+
+    function dropWinners(winners) {
+      var wIdx = 0;
+      function dropOneWinner() {
+        if (wIdx >= winners.length) {
+          // Toate cazut - arata buton confirmare
+          setTimeout(showConfirmBtn, 600);
+          return;
+        }
+        var p = winners[wIdx];
+        // Ascunde din frameTop
+        var chip = document.getElementById('chip-' + p.number);
+        if (chip) {
+          chip.style.opacity = '0';
+          setTimeout(function(){ if(chip.parentNode) chip.parentNode.removeChild(chip); }, 200);
+        }
+        // Animeaza caderea cu fallingDot
+        fallingDot.style.display = 'flex';
+        fallingDot.textContent = p.number;
+        // Adauga in frameBot
+        setTimeout(function() {
+          fallingDot.style.display = 'none';
+          var botChip = document.createElement('div');
+          botChip.style.cssText = [
+            'font-family:Bebas Neue,sans-serif;font-size:15px;',
+            'color:#111;background:var(--gold);',
+            'border-radius:6px;padding:5px 10px;',
+            'min-width:36px;text-align:center;',
+            'font-weight:bold;',
+            'animation:winnerPop .4s cubic-bezier(.175,.885,.32,1.275);'
+          ].join('');
+          botChip.textContent = p.number;
+          frameBot.appendChild(botChip);
+        }, 300);
+        wIdx++;
+        setTimeout(dropOneWinner, 600);
+      }
+      dropOneWinner();
+    }
+  }
+
+  function showConfirmBtn() {
+    btnExtrage.style.display = 'none';
+    var btnConfirm = document.createElement('button');
+    btnConfirm.textContent = 'CONFIRMA EXTRAGEREA';
+    btnConfirm.style.cssText = [
+      'margin-top:18px;padding:13px 30px;',
+      'border-radius:8px;border:none;',
+      'font-family:Bebas Neue,sans-serif;',
+      'font-size:17px;letter-spacing:2px;',
+      'background:linear-gradient(135deg,var(--gold),var(--gold-light));',
+      'color:#0f0e0d;cursor:pointer;',
+      'animation:pulseGold 1.5s ease infinite;'
+    ].join('');
+    btnConfirm.onclick = function() {
+      var ov = document.getElementById('drawShowOverlay');
+      if (ov) ov.remove();
+      revealWinners(picked);
+    };
+    overlay.appendChild(btnConfirm);
+  }
+}
+
+function revealWinners(picked) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:20px;';
+  document.body.appendChild(overlay);
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:32px;letter-spacing:6px;color:var(--gold);text-align:center;margin-bottom:30px;text-shadow:0 0 20px rgba(201,168,76,.6);';
+  title.textContent = '🏆 CASTIGATORI 🏆';
+  overlay.appendChild(title);
+
   var grid = document.createElement('div');
-  grid.className = 'draw-show-winners';
-  grid.style.position = 'relative';
-  grid.style.zIndex = '5';
+  grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:30px;';
   overlay.appendChild(grid);
+
   var idx = 0;
   function showNext() {
     if (idx >= picked.length) {
       setTimeout(function() {
         launchConfettiOn(overlay);
-        setTimeout(function(){ launchConfettiOn(overlay); }, 350);
-        setTimeout(function(){ launchConfettiOn(overlay); }, 700);
-      }, 200);
+        setTimeout(function(){ launchConfettiOn(overlay); }, 400);
+        setTimeout(function(){ launchConfettiOn(overlay); }, 800);
+      }, 300);
       var closeBtn = document.createElement('button');
-      closeBtn.className = 'draw-show-close';
+      closeBtn.style.cssText = [
+        'padding:12px 40px;border-radius:8px;border:none;',
+        'font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;',
+        'background:var(--gold);color:#0f0e0d;cursor:pointer;'
+      ].join('');
       closeBtn.textContent = 'INCHIDE';
-      closeBtn.onclick = function() {
-        var ov = document.getElementById('drawShowOverlay');
-        if (ov) ov.remove();
-      };
+      closeBtn.onclick = function() { overlay.remove(); };
       overlay.appendChild(closeBtn);
       return;
     }
     var p = picked[idx];
-    var chip = document.createElement('div');
-    chip.className = 'draw-winner-chip';
-    chip.textContent = p.number;
-    grid.appendChild(chip);
+    // Patratel care se intoarce
+    var card = document.createElement('div');
+    card.style.cssText = [
+      'width:80px;height:80px;',
+      'background:var(--surface2);',
+      'border:2px solid var(--gold);',
+      'border-radius:12px;',
+      'display:flex;align-items:center;justify-content:center;',
+      'flex-direction:column;gap:2px;',
+      'animation:flipReveal .6s ease forwards;',
+      'opacity:0;'
+    ].join('');
+    card.innerHTML = '<div style="font-family:Bebas Neue,sans-serif;font-size:30px;color:var(--gold);line-height:1;">' + p.number + '</div>' +
+      '<div style="font-size:9px;color:var(--muted);letter-spacing:.5px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p.name + '</div>';
+    grid.appendChild(card);
     idx++;
-    setTimeout(showNext, 900);
+    setTimeout(showNext, 800);
   }
+
+  // Adauga keyframe pentru flip
+  if (!document.getElementById('flipStyle')) {
+    var st = document.createElement('style');
+    st.id = 'flipStyle';
+    st.textContent = '@keyframes flipReveal{0%{opacity:0;transform:rotateY(90deg) scale(.8);}60%{transform:rotateY(-10deg) scale(1.05);}100%{opacity:1;transform:rotateY(0deg) scale(1);}}';
+    document.head.appendChild(st);
+  }
+
   setTimeout(showNext, 400);
 }
 
