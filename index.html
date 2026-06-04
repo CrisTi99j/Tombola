@@ -9,6 +9,11 @@
 :root{--gold:#c9a84c;--gold-light:#e8cc7a;--dark:#060f09;--surface:#0d1f12;--surface2:#122918;--text:#e8f5ee;--muted:#5a7a64;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+#clientLoading{position:fixed;top:0;left:0;right:0;bottom:0;background:#060f09;z-index:9999;display:flex;align-items:center;justify-content:center;}
+#clientLoading .spinner-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#clientLoading .spinner-ring{width:60px;height:60px;border:5px solid #1a3020;border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;}
+#clientLoading .spinner-txt{color:#5a7a64;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid #1a3020;position:sticky;top:0;z-index:20;}
 .tab-btn{flex:1;padding:14px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.5px;transition:all .2s;border-bottom:2px solid transparent;}
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
@@ -242,8 +247,11 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 </head>
 <body>
 
-<div id="clientLoading" style="position:fixed;inset:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#060f09;z-index:999;">
-  <div style="width:60px;height:60px;border:5px solid #1a3020;border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;"></div>
+<div id="clientLoading">
+  <div class="spinner-wrap">
+    <div class="spinner-ring"></div>
+    <div class="spinner-txt">Se încarcă...</div>
+  </div>
 </div>
 
 <canvas id="confettiCanvas" style="position:fixed;inset:0;width:100%;height:100%;z-index:300;pointer-events:none;display:block;"></canvas>
@@ -654,7 +662,7 @@ function applyClientCodeMode() {
   var requireCode = state.requireCode !== false; // default true
   var codeSectionEl = document.getElementById('codeSection');
   var freeProceedBtn = document.getElementById('freeProceedBtn');
-  var infoBoxClient = document.getElementById('infoBoxClient');
+  var infoLineClientEl = document.getElementById('infoLineClient');
 
   if (codeSectionEl) {
     if (requireCode) {
@@ -666,9 +674,9 @@ function applyClientCodeMode() {
   if (freeProceedBtn) {
     freeProceedBtn.style.display = requireCode ? 'none' : 'block';
   }
-  if (infoBoxClient) {
-    infoBoxClient.innerHTML = requireCode
-      ? 'Ai nevoie de un <strong>cod unic</strong> primit de la frizer pentru a participa.'
+  if (infoLineClientEl) {
+    infoLineClientEl.innerHTML = requireCode
+      ? 'Ai nevoie de un <strong style="color:var(--text);">cod unic</strong> primit de la frizer pentru a participa.'
       : 'Participa direct, fara cod. Introdu numele tau si alege numarul norocos!';
   }
 }
@@ -755,7 +763,7 @@ function loadState(callback, retryCount) {
         if (callback) callback();
       } else {
         var cl = document.getElementById('clientLoading');
-        if (cl) cl.innerHTML = '<div style="color:#e74c3c;font-size:13px;">Eroare la incarcare. Reincarca pagina.</div>';
+        if (cl) cl.innerHTML = '<div class="spinner-wrap"><div style="color:#e74c3c;font-size:14px;text-align:center;padding:20px;">Eroare la incarcare.<br>Verifica conexiunea si reincarca pagina.</div></div>';
       }
     }
   });
@@ -1755,7 +1763,7 @@ function resetClientUI() {
   var hero = document.getElementById('heroSection'); if (hero) hero.style.display = 'block';
   var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'block';
   var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'block';
-  document.getElementById('infoBoxWrap').style.display = 'block';
+  var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
   showApproxCount();
 }
 
