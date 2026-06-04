@@ -153,9 +153,9 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
   100%{box-shadow:0 0 0 0 rgba(201,168,76,0);}
 }
 @keyframes continuousPulseNum {
-  0%{text-shadow:0 0 6px rgba(201,168,76,.6),0 0 12px rgba(201,168,76,.3);}
-  50%{text-shadow:0 0 12px rgba(201,168,76,.9),0 0 22px rgba(201,168,76,.5),0 0 32px rgba(201,168,76,.25);}
-  100%{text-shadow:0 0 6px rgba(201,168,76,.6),0 0 12px rgba(201,168,76,.3);}
+  0%{text-shadow:0 0 4px rgba(201,168,76,.5),0 0 8px rgba(201,168,76,.2);}
+  50%{text-shadow:0 0 8px rgba(201,168,76,.8),0 0 14px rgba(201,168,76,.35);}
+  100%{text-shadow:0 0 4px rgba(201,168,76,.5),0 0 8px rgba(201,168,76,.2);}
 }
 .pulse-constant{animation:continuousPulse 2.8s ease infinite!important;}
 .pulse-num-constant{animation:continuousPulseNum 2.8s ease infinite!important;}
@@ -171,6 +171,51 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 .winners-round-item:last-child{border-bottom:none;}
 .winners-round-num{font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);min-width:36px;}
 .winners-round-name{font-size:13px;color:var(--text);}
+/* ── DRAW SHOW ─────────────────────────────────── */
+.draw-show-overlay{
+  position:fixed;inset:0;background:#000;z-index:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.draw-show-countdown{
+  font-family:Bebas Neue,sans-serif;font-size:200px;color:var(--gold);
+  line-height:1;text-align:center;
+  text-shadow:0 0 60px rgba(201,168,76,.8);
+  animation:cdPop .5s ease;
+}
+@keyframes cdPop{from{transform:scale(2);opacity:0;}to{transform:scale(1);opacity:1;}}
+.draw-show-title{
+  font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:4px;
+  color:var(--muted);text-transform:uppercase;margin-bottom:30px;
+}
+.flying-num{
+  position:absolute;
+  font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);
+  background:var(--surface);border:1px solid rgba(201,168,76,.4);
+  border-radius:8px;padding:6px 12px;
+  pointer-events:none;user-select:none;
+  transition:none;
+}
+.draw-show-winners{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:12px;padding:20px;max-width:500px;
+}
+.draw-winner-chip{
+  font-family:Bebas Neue,sans-serif;font-size:32px;color:#0f0e0d;
+  background:var(--gold);border-radius:10px;
+  padding:10px 18px;min-width:70px;text-align:center;
+  animation:winnerPop .4s cubic-bezier(.175,.885,.32,1.275);
+  box-shadow:0 0 30px rgba(201,168,76,.7);
+}
+@keyframes winnerPop{from{transform:scale(0) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
+.draw-show-close{
+  position:absolute;bottom:30px;
+  font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;
+  background:var(--gold);color:#0f0e0d;border:none;border-radius:8px;
+  padding:12px 40px;cursor:pointer;z-index:10;
+}
+.draw-winner-name{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.5px;}
+
 .admin-section-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:6px;padding-left:2px;font-family:'DM Sans',sans-serif;font-weight:600;}
 .pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
 .pw-box{background:var(--surface);border:1px solid #1a3020;border-radius:14px;padding:26px 22px;width:290px;text-align:center;}
@@ -242,7 +287,8 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
       <div style="font-size:13px;color:var(--muted);margin-top:6px;">Tu ce mai aștepți? 👀</div>
     </div>
   </div>
-  <p id="heroSubtitle" style="text-align:center;color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:14px;">Completeaza pasii de mai jos<br>pentru a participa la tombola.</p>
+  <p id="heroSubtitle" style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:6px;">Completeaza pasii de mai jos pentru a participa la tombola.</p>
+  <p id="infoLineClient" style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:14px;">Ai nevoie de un <strong style="color:var(--text);">cod unic</strong> primit de la frizer.</p>
   <div id="clientMsg"></div>
   <div id="clientLoading" class="loading">Se incarca...</div>
   <div id="clientContent" style="display:none;">
@@ -271,9 +317,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
       <button class="btn btn-gold" id="registerBtn" onclick="registerClient()" disabled>CONFIRMA NUMARUL</button>
     </div>
 
-    <div id="infoBoxWrap">
-      <div class="info-box" id="infoBoxClient">Ai nevoie de un <strong>cod unic</strong> primit de la frizer pentru a participa.</div>
-    </div>
+    <div id="infoBoxWrap" style="display:none;"></div>
 
   </div>
 </div>
@@ -532,13 +576,12 @@ function renderWinners() {
   }
   emptyEl.style.display = 'none';
 
-  // Confetti + stele daca exista castigatori
+  // Confetti daca exista castigatori
   if (state.winners.length > 0) {
     setTimeout(function(){ launchConfetti(); }, 300);
-    setTimeout(function(){ launchStars(window.innerWidth/2, window.innerHeight*0.4); }, 800);
-    setTimeout(function(){ launchStars(window.innerWidth*0.2, window.innerHeight*0.5); }, 1200);
-    setTimeout(function(){ launchStars(window.innerWidth*0.8, window.innerHeight*0.5); }, 1600);
   }
+
+
 
   if (state.winners.length === 0) {
     currentList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nicio extragere curenta inca.</div>';
@@ -896,6 +939,7 @@ function renderClientFromState() {
         document.getElementById('numberStep').style.display = 'none';
         document.getElementById('infoBoxWrap').style.display = 'none';
         var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+        var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'none';
         showSuccessCard(data.number, data.name);
         return;
       } else {
@@ -937,6 +981,7 @@ function loadAndRenderClient() {
           document.getElementById('infoBoxWrap').style.display = 'none';
           var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
           var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+          var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'none';
           showSuccessCard(data.number, data.name);
           return;
         } else {
@@ -1145,6 +1190,7 @@ function showCountdownThenSuccess(num, name) {
   document.getElementById('infoBoxWrap').style.display = 'none';
   var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
   var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+  var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'none';
   showClientMsg('', '');
 
   // Direct la success
@@ -1360,7 +1406,7 @@ function toggleLock() {
   saveState(function() { renderAdmin(); });
 }
 
-// ── EXTRAGERE ─────────────────────────────────────
+// ── EXTRAGERE SPECTACULOASA ────────────────────────
 function drawWinners() {
   var count = parseInt(document.getElementById('wCount').value) || 1;
   var winNums = {};
@@ -1377,32 +1423,146 @@ function drawWinners() {
   }
   var now = Date.now();
   picked.forEach(function(p) { state.winners.push({ name: p.name, number: p.number, ts: now }); });
-  var stage = document.getElementById('drawStage');
-  var spinEl = document.getElementById('spinBig');
-  var reveal = document.getElementById('winnerReveal');
-  reveal.style.display = 'none';
-  stage.style.display = 'block';
-  var ticks = 0;
-  var maxN = state.maxNumbers || 100;
-  var iv = setInterval(function() {
-    spinEl.textContent = Math.floor(Math.random() * maxN) + 1;
-    if (++ticks > 35) {
-      clearInterval(iv);
-      stage.style.display = 'none';
-      reveal.style.display = 'block';
-      if (picked.length === 1) {
-        reveal.innerHTML = '<div class="w-lbl">&#127942; Castigator</div><div class="w-num">' + picked[0].number + '</div><div class="w-name">' + picked[0].name + '</div>';
-      } else {
-        var rh = '<div class="w-lbl">&#127942; ' + picked.length + ' Castigatori</div>';
-        picked.forEach(function(p) {
-          rh += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0;"><span style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:var(--gold);">' + p.number + '</span><span>' + p.name + '</span></div>';
-        });
-        reveal.innerHTML = rh;
-      }
-      saveState(function() { renderAdmin(); });
-      launchConfetti();
+  saveState(function() { renderAdmin(); });
+  startDrawShow(eligible, picked);
+}
+
+function startDrawShow(eligible, picked) {
+  var overlay = document.createElement('div');
+  overlay.className = 'draw-show-overlay';
+  overlay.id = 'drawShowOverlay';
+  document.body.appendChild(overlay);
+  var phase = 0;
+  var counts = ['3', '2', '1', 'START!'];
+  var cdWrap = document.createElement('div');
+  cdWrap.style.cssText = 'text-align:center;';
+  cdWrap.innerHTML = '<div class="draw-show-title">Extragerea incepe in</div><div class="draw-show-countdown" id="dsCount">3</div>';
+  overlay.appendChild(cdWrap);
+  function runCountdown() {
+    var el = document.getElementById('dsCount');
+    if (!el) return;
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    el.style.animation = 'cdPop .5s ease';
+    el.textContent = counts[phase];
+    phase++;
+    if (phase < counts.length) {
+      setTimeout(runCountdown, 900);
+    } else {
+      setTimeout(function() { startFlyingPhase(overlay, eligible, picked); }, 700);
     }
-  }, 70);
+  }
+  runCountdown();
+}
+
+function startFlyingPhase(overlay, eligible, picked) {
+  overlay.innerHTML = '';
+  var titleEl = document.createElement('div');
+  titleEl.style.cssText = 'position:absolute;top:20px;width:100%;text-align:center;font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:3px;color:var(--muted);z-index:5;';
+  titleEl.textContent = 'SE EXTRAGE...';
+  overlay.appendChild(titleEl);
+  var timerBar = document.createElement('div');
+  timerBar.style.cssText = 'position:absolute;bottom:80px;left:10%;width:80%;height:5px;background:#1a3020;border-radius:3px;z-index:5;';
+  var timerFill = document.createElement('div');
+  timerFill.id = 'timerFill';
+  timerFill.style.cssText = 'height:100%;width:100%;background:var(--gold);border-radius:3px;';
+  timerBar.appendChild(timerFill);
+  overlay.appendChild(timerBar);
+  var timerText = document.createElement('div');
+  timerText.id = 'timerText';
+  timerText.style.cssText = 'position:absolute;bottom:90px;width:100%;text-align:center;font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--gold);z-index:5;';
+  timerText.textContent = '15';
+  overlay.appendChild(timerText);
+  var W = window.innerWidth, H = window.innerHeight;
+  var flyingEls = [];
+  eligible.forEach(function(p) {
+    var el = document.createElement('div');
+    el.className = 'flying-num';
+    el.textContent = p.number;
+    var x = 20 + Math.random() * (W - 80);
+    var y = 60 + Math.random() * (H - 160);
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    overlay.appendChild(el);
+    flyingEls.push({
+      el: el, x: x, y: y,
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.5) * 5,
+      rot: 0,
+      vr: (Math.random() - 0.5) * 6
+    });
+  });
+  var startTime = Date.now();
+  var duration = 15000;
+  var animActive = true;
+  function animateFlying() {
+    if (!animActive) return;
+    var elapsed = Date.now() - startTime;
+    var progress = Math.min(elapsed / duration, 1);
+    var tf = document.getElementById('timerFill');
+    var tt = document.getElementById('timerText');
+    if (tf) tf.style.width = (100 - progress * 100) + '%';
+    if (tt) tt.textContent = Math.ceil((duration - elapsed) / 1000);
+    flyingEls.forEach(function(f) {
+      f.x += f.vx; f.y += f.vy; f.rot += f.vr;
+      if (f.x < 0 || f.x > W - 60) { f.vx *= -1; f.x = Math.max(0, Math.min(W-60, f.x)); }
+      if (f.y < 50 || f.y > H - 100) { f.vy *= -1; f.y = Math.max(50, Math.min(H-100, f.y)); }
+      f.el.style.left = f.x + 'px';
+      f.el.style.top = f.y + 'px';
+      f.el.style.transform = 'rotate(' + f.rot + 'deg)';
+    });
+    if (progress < 1) {
+      requestAnimationFrame(animateFlying);
+    } else {
+      animActive = false;
+      revealWinners(overlay, picked);
+    }
+  }
+  animateFlying();
+}
+
+function revealWinners(overlay, picked) {
+  overlay.innerHTML = '';
+  var bg = document.createElement('div');
+  bg.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.97);';
+  overlay.appendChild(bg);
+  var titleEl = document.createElement('div');
+  titleEl.style.cssText = 'position:relative;z-index:5;font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);text-align:center;padding-top:50px;margin-bottom:30px;';
+  titleEl.textContent = '🏆 CASTIGATORI 🏆';
+  overlay.appendChild(titleEl);
+  var grid = document.createElement('div');
+  grid.className = 'draw-show-winners';
+  grid.style.position = 'relative';
+  grid.style.zIndex = '5';
+  overlay.appendChild(grid);
+  var idx = 0;
+  function showNext() {
+    if (idx >= picked.length) {
+      setTimeout(function() {
+        launchConfetti();
+        setTimeout(launchConfetti, 300);
+        setTimeout(launchConfetti, 600);
+        setTimeout(launchConfetti, 900);
+      }, 200);
+      var closeBtn = document.createElement('button');
+      closeBtn.className = 'draw-show-close';
+      closeBtn.textContent = 'INCHIDE';
+      closeBtn.onclick = function() {
+        var ov = document.getElementById('drawShowOverlay');
+        if (ov) ov.remove();
+      };
+      overlay.appendChild(closeBtn);
+      return;
+    }
+    var p = picked[idx];
+    var chip = document.createElement('div');
+    chip.style.cssText = 'text-align:center;';
+    chip.innerHTML = '<div class="draw-winner-chip">' + p.number + '</div><div class="draw-winner-name">' + p.name + '</div>';
+    grid.appendChild(chip);
+    idx++;
+    setTimeout(showNext, 900);
+  }
+  setTimeout(showNext, 400);
 }
 
 // ── DELETE PARTICIPANT ─────────────────────────────
@@ -1540,8 +1700,10 @@ function resetClientUI() {
   var sc = document.getElementById('successCard');
   if (sc) sc.remove();
   var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = '';
+  var il = document.getElementById('infoLineClient'); if (il) il.style.display = '';
+  var il = document.getElementById('infoLineClient'); if (il) il.style.display = '';
+  var il = document.getElementById('infoLineClient'); if (il) il.style.display = '';
   document.getElementById('infoBoxWrap').style.display = 'block';
-  // Restore count box visibility based on count
   showApproxCount();
 }
 
