@@ -198,12 +198,14 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 }
 .draw-show-winners{
   display:flex;flex-wrap:wrap;justify-content:center;
-  gap:12px;padding:20px;max-width:500px;
+  gap:14px;padding:20px;max-width:430px;
 }
 .draw-winner-chip{
-  font-family:Bebas Neue,sans-serif;font-size:32px;color:#0f0e0d;
+  font-family:Bebas Neue,sans-serif;font-size:28px;color:#0f0e0d;
   background:var(--gold);border-radius:10px;
-  padding:10px 18px;min-width:70px;text-align:center;
+  width:72px;height:72px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
   animation:winnerPop .4s cubic-bezier(.175,.885,.32,1.275);
   box-shadow:0 0 30px rgba(201,168,76,.7);
 }
@@ -1195,9 +1197,6 @@ function showCountdownThenSuccess(num, name) {
 
   // Direct la success
   showSuccessCard(num, name);
-  setTimeout(function(){ launchStars(window.innerWidth/2, window.innerHeight*0.35); }, 150);
-  setTimeout(function(){ launchStars(window.innerWidth*0.15, window.innerHeight*0.5); }, 400);
-  setTimeout(function(){ launchStars(window.innerWidth*0.85, window.innerHeight*0.5); }, 600);
 }
 
 // ── SUCCESS ────────────────────────────────────────
@@ -1219,6 +1218,45 @@ function showSuccess(num, name) {
   selectedNumber = null;
   localStorage.setItem('myTombolaNum', JSON.stringify({ name: name, number: num }));
   showCountdownThenSuccess(num, name);
+}
+
+// ── CONFETTI ON OVERLAY ──────────────────────────────
+function launchConfettiOn(container) {
+  var canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:50;pointer-events:none;';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  container.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+  var pieces = [];
+  var colors = ['#c9a84c','#e8cc7a','#f0ebe4','#27ae60','#e74c3c','#3498db','#ffffff','#ff6b6b','#ffd93d'];
+  for (var i = 0; i < 200; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * 400,
+      w: 7 + Math.random() * 10, h: 7 + Math.random() * 10,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: 4 + Math.random() * 6,
+      angle: Math.random() * 360,
+      spin: (Math.random() - 0.5) * 9,
+      drift: (Math.random() - 0.5) * 2
+    });
+  }
+  var frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var alive = false;
+    pieces.forEach(function(p) {
+      p.y += p.speed; p.x += p.drift; p.angle += p.spin;
+      if (p.y < canvas.height + 20) alive = true;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.angle * Math.PI / 180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+    });
+    frame++;
+    if (alive && frame < 300) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); if(canvas.parentNode) canvas.parentNode.removeChild(canvas); }
+  }
+  draw();
 }
 
 // ── CONFETTI ─────────────────────────────────────────
@@ -1539,10 +1577,9 @@ function revealWinners(overlay, picked) {
   function showNext() {
     if (idx >= picked.length) {
       setTimeout(function() {
-        launchConfetti();
-        setTimeout(launchConfetti, 300);
-        setTimeout(launchConfetti, 600);
-        setTimeout(launchConfetti, 900);
+        launchConfettiOn(overlay);
+        setTimeout(function(){ launchConfettiOn(overlay); }, 350);
+        setTimeout(function(){ launchConfettiOn(overlay); }, 700);
       }, 200);
       var closeBtn = document.createElement('button');
       closeBtn.className = 'draw-show-close';
