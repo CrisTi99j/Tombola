@@ -178,55 +178,31 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
 .winners-round-num{font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);min-width:36px;}
 .winners-round-name{font-size:13px;color:var(--text);}
 /* ── DRAW SHOW ─────────────────────────────────── */
-.draw-show-overlay{
-  position:fixed;inset:0;background:#000;z-index:500;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  overflow:hidden;
-}
-.draw-show-countdown{
-  font-family:Bebas Neue,sans-serif;font-size:200px;color:var(--gold);
-  line-height:1;text-align:center;
-  text-shadow:0 0 60px rgba(201,168,76,.8);
-  animation:cdPop .5s ease;
-}
+/* ── DRAW SHOW NEW ─────────────────────────── */
 @keyframes spin{to{transform:rotate(360deg);}}
-@keyframes cdPop{from{transform:scale(2);opacity:0;}to{transform:scale(1);opacity:1;}}
-.draw-show-title{
-  font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:4px;
-  color:var(--muted);text-transform:uppercase;margin-bottom:30px;
+@keyframes chipIn{from{transform:scale(0) rotate(-8deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+@keyframes numIn{from{transform:scale(0) rotate(-12deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+@keyframes trophyIn{from{transform:scale(0) translateY(-20px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulseNumDraw{
+  0%{text-shadow:0 0 10px rgba(201,168,76,.6),0 0 20px rgba(201,168,76,.3);}
+  50%{text-shadow:0 0 22px rgba(201,168,76,1),0 0 40px rgba(201,168,76,.5);}
+  100%{text-shadow:0 0 10px rgba(201,168,76,.6),0 0 20px rgba(201,168,76,.3);}
 }
-.flying-num{
-  position:absolute;
-  font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);
-  background:var(--surface);border:1px solid rgba(201,168,76,.4);
-  border-radius:8px;padding:6px 12px;
-  pointer-events:none;user-select:none;
-  transition:none;
-}
-.draw-show-winners{
-  display:grid;
-  grid-template-columns:repeat(5,58px);
-  gap:10px;padding:16px;
-  justify-content:center;
-}
-.draw-winner-chip{
-  font-family:Bebas Neue,sans-serif;font-size:20px;color:#0f0e0d;
-  background:var(--gold);border-radius:8px;
-  width:58px;height:58px;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;flex-grow:0;
-  overflow:hidden;
-  animation:winnerPop .4s cubic-bezier(.175,.885,.32,1.275);
-  box-shadow:0 0 20px rgba(201,168,76,.7);
-}
-@keyframes winnerPop{from{transform:scale(0) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
-.draw-show-close{
-  position:absolute;bottom:30px;
-  font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;
-  background:var(--gold);color:#0f0e0d;border:none;border-radius:8px;
-  padding:12px 40px;cursor:pointer;z-index:10;
-}
-.draw-winner-name{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.5px;}
+.draw-prog-dots{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;padding:0 20px;max-width:320px;}
+.draw-pdot{width:12px;height:12px;border-radius:50%;background:#1a3020;border:1px solid #2a4030;transition:all .3s;flex-shrink:0;}
+.draw-pdot.done{background:var(--gold);border-color:var(--gold);box-shadow:0 0 6px rgba(201,168,76,.5);}
+.draw-pdot.active{background:var(--gold-light);border-color:var(--gold);transform:scale(1.4);box-shadow:0 0 10px rgba(201,168,76,.8);}
+.draw-spin-box{background:var(--surface);border:2px solid #1a3020;border-radius:16px;width:220px;height:220px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.draw-spin-box.glow{border-color:rgba(201,168,76,.4);box-shadow:0 0 40px rgba(201,168,76,.15);}
+.draw-spin-num{font-family:Bebas Neue,sans-serif;font-size:110px;color:var(--gold);line-height:1;text-align:center;min-width:160px;text-shadow:0 0 20px rgba(201,168,76,.4);}
+.draw-spin-num.landed{color:#fff!important;text-shadow:0 0 50px rgba(255,255,255,.9),0 0 80px rgba(201,168,76,.6)!important;}
+.draw-spin-num.pulse-draw{animation:pulseNumDraw 2.4s ease infinite!important;}
+.draw-status{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;height:16px;margin-bottom:16px;}
+.draw-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:0 20px;max-width:340px;}
+.draw-d-chip{font-family:Bebas Neue,sans-serif;font-size:22px;color:#0f0e0d;background:var(--gold);border-radius:8px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;animation:chipIn .35s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 0 12px rgba(201,168,76,.4);}
+.draw-final-grid{display:grid;grid-template-columns:repeat(5,58px);gap:10px;justify-content:center;}
+.draw-f-chip{font-family:Bebas Neue,sans-serif;font-size:22px;color:#0f0e0d;background:var(--gold);border-radius:8px;width:58px;height:58px;display:flex;align-items:center;justify-content:center;animation:chipIn .4s cubic-bezier(.175,.885,.32,1.275) both;box-shadow:0 0 14px rgba(201,168,76,.5);}
 
 .admin-section-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:6px;padding-left:2px;font-family:'DM Sans',sans-serif;font-weight:600;}
 .pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
@@ -420,14 +396,14 @@ input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
         <span class="card-toggle" id="toggle-card-extragere">&#9650;</span>
       </div>
       <div class="card-body" id="body-card-extragere">
-        <div class="spin-row">
+        <div class="spin-row" style="margin-bottom:0;">
           <label>Cati castigatori:</label>
           <input type="number" id="wCount" value="1" min="1" max="500" />
-          <button class="btn-sm btn-gold" onclick="drawWinners()">TRAGE</button>
         </div>
-        <div class="draw-stage" id="drawStage"><div class="spin-big" id="spinBig">?</div><div class="spin-lbl-big">Se extrage...</div></div>
-        <div class="winner-reveal" id="winnerReveal"></div>
-        <div id="historySection" style="display:none;">
+        <button class="btn btn-gold" onclick="drawWinners()" style="margin-top:12px;font-size:16px;letter-spacing:2px;">
+          🎰 EXTRAGEREA CASTIGATORILOR
+        </button>
+        <div id="historySection" style="display:none;margin-top:12px;">
           <div class="divider"></div>
           <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;">Castigatori extrasi</div>
           <div id="historyList"></div>
@@ -1469,7 +1445,12 @@ function toggleLock() {
   saveState(function() { renderAdmin(); });
 }
 
-// ── EXTRAGERE SPECTACULOASA ────────────────────────
+// ── EXTRAGERE NOUA ─────────────────────────────────
+var drawSpinInterval = null;
+var drawAllPicked = [];
+var drawCurrentIdx = 0;
+var drawAllNums = [];
+
 function drawWinners() {
   var count = parseInt(document.getElementById('wCount').value) || 1;
   var winNums = {};
@@ -1478,316 +1459,207 @@ function drawWinners() {
   if (eligible.length === 0) { alert('Nu exista participanti eligibili!'); return; }
   var draw = Math.min(count, eligible.length);
   if (!confirm('Extragi ' + draw + ' castigatori din ' + eligible.length + ' participanti?')) return;
+
+  // Pick winners
   var pool = eligible.slice();
   var picked = [];
   while (picked.length < draw) {
     var idx = Math.floor(Math.random() * pool.length);
     picked.push(pool.splice(idx, 1)[0]);
   }
+
+  // Save to state
   var now = Date.now();
   picked.forEach(function(p) { state.winners.push({ name: p.name, number: p.number, ts: now }); });
   saveState(function() { renderAdmin(); });
-  startDrawShow(eligible, picked);
-}
 
-function startDrawShow(eligible, picked) {
-  // ── OVERLAY PRINCIPAL ─────────────────────────────
+  // Setup draw vars - foloseste TOATE numerele participantilor ca pool pentru animatie
+  drawAllPicked = picked;
+  drawAllNums = eligible.map(function(p){ return p.number; });
+  drawCurrentIdx = 0;
+
+  // Build overlay
   var overlay = document.createElement('div');
   overlay.id = 'drawShowOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:16px;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;';
   document.body.appendChild(overlay);
 
-  // Titlu
-  var title = document.createElement('div');
-  title.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;text-align:center;';
-  title.textContent = 'EXTRAGERE TOMBOLA';
-  overlay.appendChild(title);
+  // Round label
+  var roundEl = document.createElement('div');
+  roundEl.id = 'drawRoundLabel';
+  roundEl.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:3px;color:var(--muted);margin-bottom:20px;';
+  overlay.appendChild(roundEl);
 
-  // ── RAMA DE SUS (cu gaura jos) ──────────────────
-  var frameTop = document.createElement('div');
-  frameTop.id = 'frameTop';
-  frameTop.style.cssText = [
-    'width:100%;max-width:360px;',
-    'background:#111;',
-    'border:2px solid rgba(201,168,76,.5);',
-    'border-bottom:none;',
-    'border-radius:14px 14px 0 0;',
-    'padding:12px 10px 0;',
-    'position:relative;',
-    'min-height:180px;',
-    'display:flex;flex-wrap:wrap;gap:5px;',
-    'align-content:flex-start;',
-    'justify-content:center;',
-    'overflow:hidden;'
-  ].join('');
+  // Progress dots
+  var dotsEl = document.createElement('div');
+  dotsEl.id = 'drawProgDots';
+  dotsEl.className = 'draw-prog-dots';
+  if (picked.length > 1) {
+    for (var i = 0; i < picked.length; i++) {
+      var d = document.createElement('div');
+      d.className = 'draw-pdot' + (i === 0 ? ' active' : '');
+      d.id = 'drawDot' + i;
+      dotsEl.appendChild(d);
+    }
+    dotsEl.style.display = 'flex';
+  } else {
+    dotsEl.style.display = 'none';
+  }
+  overlay.insertBefore(dotsEl, roundEl);
 
-  // Gaura jos din rama de sus
-  var holeTop = document.createElement('div');
-  holeTop.style.cssText = 'position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:40px;height:8px;background:#000;border-radius:4px 4px 0 0;z-index:5;';
-  frameTop.appendChild(holeTop);
+  // Spin box
+  var spinBox = document.createElement('div');
+  spinBox.id = 'drawSpinBox';
+  spinBox.className = 'draw-spin-box';
+  var spinNum = document.createElement('div');
+  spinNum.id = 'drawSpinNum';
+  spinNum.className = 'draw-spin-num';
+  spinNum.textContent = '?';
+  spinBox.appendChild(spinNum);
+  overlay.appendChild(spinBox);
 
-  // Numerele in rama de sus
-  eligible.forEach(function(p) {
-    var chip = document.createElement('div');
-    chip.className = 'draw-chip-top';
-    chip.id = 'chip-' + p.number;
-    chip.textContent = p.number;
-    chip.style.cssText = [
-      'font-family:Bebas Neue,sans-serif;font-size:15px;',
-      'color:var(--gold);',
-      'background:#1a1a1a;',
-      'border:1px solid rgba(201,168,76,.35);',
-      'border-radius:6px;',
-      'padding:4px 8px;',
-      'min-width:34px;text-align:center;',
-      'transition:opacity .3s;'
-    ].join('');
-    frameTop.appendChild(chip);
-  });
-  overlay.appendChild(frameTop);
+  // Status
+  var statusEl = document.createElement('div');
+  statusEl.id = 'drawSpinStatus';
+  statusEl.className = 'draw-status';
+  overlay.appendChild(statusEl);
 
-  // ── CONECTOR VIZUAL (gaura sus/jos) ─────────────
-  var connector = document.createElement('div');
-  connector.style.cssText = 'width:2px;height:0;background:rgba(201,168,76,.4);position:relative;z-index:10;transition:height .3s;';
-  // Particula care cade
-  var fallingDot = document.createElement('div');
-  fallingDot.id = 'fallingDot';
-  fallingDot.style.cssText = 'display:none;position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:22px;background:var(--gold);border-radius:4px;font-family:Bebas Neue,sans-serif;font-size:13px;color:#000;display:none;align-items:center;justify-content:center;z-index:20;';
-  connector.appendChild(fallingDot);
-  overlay.appendChild(connector);
+  // Drawn chips
+  var chipsEl = document.createElement('div');
+  chipsEl.id = 'drawChips';
+  chipsEl.className = 'draw-chips';
+  overlay.appendChild(chipsEl);
 
-  // ── RAMA DE JOS (cu gaura sus) ───────────────────
-  var frameBot = document.createElement('div');
-  frameBot.id = 'frameBot';
-  frameBot.style.cssText = [
-    'width:100%;max-width:360px;',
-    'background:#111;',
-    'border:2px solid rgba(201,168,76,.5);',
-    'border-top:none;',
-    'border-radius:0 0 14px 14px;',
-    'padding:10px 10px 12px;',
-    'position:relative;',
-    'min-height:70px;',
-    'display:flex;flex-wrap:wrap;gap:6px;',
-    'align-content:flex-start;',
-    'justify-content:center;',
-  ].join('');
-
-  // Gaura sus din rama de jos
-  var holeBot = document.createElement('div');
-  holeBot.style.cssText = 'position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:40px;height:8px;background:#000;border-radius:0 0 4px 4px;z-index:5;';
-  frameBot.appendChild(holeBot);
-  overlay.appendChild(frameBot);
-
-  // ── BUTON EXTRAGERE ──────────────────────────────
-  var btnExtrage = document.createElement('button');
-  btnExtrage.id = 'btnExtrage';
-  btnExtrage.textContent = 'EXTRAGERE';
-  btnExtrage.style.cssText = [
-    'margin-top:18px;',
-    'padding:13px 40px;',
-    'border-radius:8px;',
-    'border:none;',
-    'font-family:Bebas Neue,sans-serif;',
-    'font-size:18px;letter-spacing:3px;',
-    'background:linear-gradient(135deg,#888,#ccc,#888);',
-    'color:#111;',
-    'cursor:pointer;',
-    'box-shadow:0 2px 12px rgba(200,200,200,.2);',
-    'transition:opacity .2s;'
-  ].join('');
-  btnExtrage.onclick = function() { startFallingAnimation(eligible, picked, overlay, frameTop, frameBot, connector, fallingDot, btnExtrage); };
-  overlay.appendChild(btnExtrage);
+  startDrawSpin(0);
 }
 
-// ── ANIMATIE CADERE ────────────────────────────────
-function startFallingAnimation(eligible, picked, overlay, frameTop, frameBot, connector, fallingDot, btnExtrage) {
-  btnExtrage.disabled = true;
-  btnExtrage.style.opacity = '0.4';
+function startDrawSpin(idx) {
+  var target = drawAllPicked[idx].number;
+  var spinEl = document.getElementById('drawSpinNum');
+  var statusEl = document.getElementById('drawSpinStatus');
+  var roundEl = document.getElementById('drawRoundLabel');
+  var boxEl = document.getElementById('drawSpinBox');
 
-  // Countdown 3..2..1
-  var cdOverlay = document.createElement('div');
-  cdOverlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;border-radius:14px;font-family:Bebas Neue,sans-serif;font-size:100px;color:var(--gold);';
-  overlay.appendChild(cdOverlay);
-  var cdNum = 3;
-  cdOverlay.textContent = cdNum;
-  var cdInt = setInterval(function() {
-    cdNum--;
-    if (cdNum > 0) {
-      cdOverlay.textContent = cdNum;
-    } else {
-      clearInterval(cdInt);
-      cdOverlay.remove();
-      runFalling();
+  spinEl.className = 'draw-spin-num';
+  boxEl.classList.add('glow');
+
+  if (drawAllPicked.length > 1) {
+    roundEl.textContent = 'SE EXTRAGE ' + (idx + 1) + ' DIN ' + drawAllPicked.length;
+  } else {
+    roundEl.textContent = 'SE EXTRAGE NUMARUL';
+  }
+
+  statusEl.textContent = '';
+  var ticks = 0;
+  var totalTicks = 35;
+
+  if (drawSpinInterval) clearInterval(drawSpinInterval);
+
+  drawSpinInterval = setInterval(function() {
+    var rnd = drawAllNums[Math.floor(Math.random() * drawAllNums.length)];
+    spinEl.textContent = rnd;
+    ticks++;
+
+    var progress = ticks / totalTicks;
+    if (progress > 0.4 && progress < 0.7) statusEl.textContent = 'INCETINESTE...';
+    else if (progress >= 0.7) statusEl.textContent = 'SE OPRESTE...';
+    else statusEl.textContent = '';
+
+    if (ticks >= totalTicks) {
+      clearInterval(drawSpinInterval);
+      drawSpinInterval = null;
+      statusEl.textContent = '';
+      spinEl.textContent = target;
+      spinEl.classList.add('landed');
+
+      var dot = document.getElementById('drawDot' + idx);
+      if (dot) { dot.classList.remove('active'); dot.classList.add('done'); }
+
+      setTimeout(function() { onDrawLanded(idx, target); }, 900);
     }
-  }, 900);
+  }, 70);
+}
 
-  function runFalling() {
-    // Fa conexiunea vizibila
-    connector.style.height = '12px';
+function onDrawLanded(idx, num) {
+  var boxEl = document.getElementById('drawSpinBox');
+  if (boxEl) boxEl.classList.remove('glow');
 
-    // Toate numerele din frameTop devin vizibile
-    var allChips = frameTop.querySelectorAll('.draw-chip-top');
-    var pickedNums = picked.map(function(p){ return p.number; });
-
-    // Timer 15s - cad numerele nepremiate unul cate unul
-    var nonWinners = eligible.filter(function(p){ return pickedNums.indexOf(p.number) < 0; });
-    var winners = picked.slice();
-
-    // Amestecam nonWinners
-    for (var i = nonWinners.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i+1));
-      var tmp = nonWinners[i]; nonWinners[i] = nonWinners[j]; nonWinners[j] = tmp;
-    }
-
-    var totalDuration = 15000;
-    var interval = nonWinners.length > 0 ? Math.floor((totalDuration * 0.85) / nonWinners.length) : 500;
-    interval = Math.max(150, Math.min(interval, 800));
-
-    var fallenCount = 0;
-
-    function dropNext() {
-      if (fallenCount >= nonWinners.length) {
-        // Dupa ce au cazut toate non-castigatoarele, cad si castigatorii
-        setTimeout(function(){ dropWinners(winners); }, 400);
-        return;
-      }
-      var p = nonWinners[fallenCount];
-      var chip = document.getElementById('chip-' + p.number);
-      if (chip) {
-        chip.style.opacity = '0';
-        chip.style.transform = 'scale(0)';
-        setTimeout(function(){ if(chip.parentNode) chip.parentNode.removeChild(chip); }, 300);
-      }
-      fallenCount++;
-      setTimeout(dropNext, interval);
-    }
-    dropNext();
-
-    function dropWinners(winners) {
-      var wIdx = 0;
-      function dropOneWinner() {
-        if (wIdx >= winners.length) {
-          // Toate cazut - arata buton confirmare
-          setTimeout(showConfirmBtn, 600);
-          return;
-        }
-        var p = winners[wIdx];
-        // Ascunde din frameTop
-        var chip = document.getElementById('chip-' + p.number);
-        if (chip) {
-          chip.style.opacity = '0';
-          setTimeout(function(){ if(chip.parentNode) chip.parentNode.removeChild(chip); }, 200);
-        }
-        // Animeaza caderea cu fallingDot
-        fallingDot.style.display = 'flex';
-        fallingDot.textContent = p.number;
-        // Adauga in frameBot
-        setTimeout(function() {
-          fallingDot.style.display = 'none';
-          var botChip = document.createElement('div');
-          botChip.style.cssText = [
-            'font-family:Bebas Neue,sans-serif;font-size:15px;',
-            'color:#111;background:var(--gold);',
-            'border-radius:6px;padding:5px 10px;',
-            'min-width:36px;text-align:center;',
-            'font-weight:bold;',
-            'animation:winnerPop .4s cubic-bezier(.175,.885,.32,1.275);'
-          ].join('');
-          botChip.textContent = p.number;
-          frameBot.appendChild(botChip);
-        }, 300);
-        wIdx++;
-        setTimeout(dropOneWinner, 600);
-      }
-      dropOneWinner();
+  if (drawAllPicked.length > 1) {
+    var chips = document.getElementById('drawChips');
+    if (chips) {
+      var chip = document.createElement('div');
+      chip.className = 'draw-d-chip';
+      chip.textContent = num;
+      chips.appendChild(chip);
     }
   }
 
-  function showConfirmBtn() {
-    btnExtrage.style.display = 'none';
-    var btnConfirm = document.createElement('button');
-    btnConfirm.textContent = 'CONFIRMA EXTRAGEREA';
-    btnConfirm.style.cssText = [
-      'margin-top:18px;padding:13px 30px;',
-      'border-radius:8px;border:none;',
-      'font-family:Bebas Neue,sans-serif;',
-      'font-size:17px;letter-spacing:2px;',
-      'background:linear-gradient(135deg,var(--gold),var(--gold-light));',
-      'color:#0f0e0d;cursor:pointer;',
-      'animation:pulseGold 1.5s ease infinite;'
-    ].join('');
-    btnConfirm.onclick = function() {
-      var ov = document.getElementById('drawShowOverlay');
-      if (ov) ov.remove();
-      revealWinners(picked);
-    };
-    overlay.appendChild(btnConfirm);
+  drawCurrentIdx++;
+
+  if (drawCurrentIdx < drawAllPicked.length) {
+    var nextDot = document.getElementById('drawDot' + drawCurrentIdx);
+    if (nextDot) nextDot.classList.add('active');
+    var spinEl = document.getElementById('drawSpinNum');
+    if (spinEl) { spinEl.className = 'draw-spin-num'; spinEl.textContent = '?'; }
+    setTimeout(function() { startDrawSpin(drawCurrentIdx); }, 700);
+  } else {
+    setTimeout(showDrawFinal, 500);
   }
 }
 
-function revealWinners(picked) {
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:20px;';
-  document.body.appendChild(overlay);
+function showDrawFinal() {
+  var ov = document.getElementById('drawShowOverlay');
+  if (ov) ov.remove();
+
+  var finalOv = document.createElement('div');
+  finalOv.id = 'drawFinalOverlay';
+  finalOv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;';
+  document.body.appendChild(finalOv);
+
+  var trophy = document.createElement('div');
+  trophy.style.cssText = 'font-size:56px;margin-bottom:10px;animation:trophyIn .6s cubic-bezier(.175,.885,.32,1.275);';
+  trophy.textContent = '🏆';
+  finalOv.appendChild(trophy);
 
   var title = document.createElement('div');
-  title.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:32px;letter-spacing:6px;color:var(--gold);text-align:center;margin-bottom:30px;text-shadow:0 0 20px rgba(201,168,76,.6);';
-  title.textContent = '🏆 CASTIGATORI 🏆';
-  overlay.appendChild(title);
+  title.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:32px;letter-spacing:5px;color:var(--gold);margin-bottom:24px;animation:fadeUp .4s ease .2s both;text-shadow:0 0 20px rgba(201,168,76,.4);';
+  title.textContent = drawAllPicked.length === 1 ? 'CASTIGATOR' : drawAllPicked.length + ' CASTIGATORI';
+  finalOv.appendChild(title);
 
-  var grid = document.createElement('div');
-  grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:30px;';
-  overlay.appendChild(grid);
-
-  var idx = 0;
-  function showNext() {
-    if (idx >= picked.length) {
-      setTimeout(function() {
-        launchConfettiOn(overlay);
-        setTimeout(function(){ launchConfettiOn(overlay); }, 400);
-        setTimeout(function(){ launchConfettiOn(overlay); }, 800);
-      }, 300);
-      var closeBtn = document.createElement('button');
-      closeBtn.style.cssText = [
-        'padding:12px 40px;border-radius:8px;border:none;',
-        'font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;',
-        'background:var(--gold);color:#0f0e0d;cursor:pointer;'
-      ].join('');
-      closeBtn.textContent = 'INCHIDE';
-      closeBtn.onclick = function() { overlay.remove(); };
-      overlay.appendChild(closeBtn);
-      return;
-    }
-    var p = picked[idx];
-    // Patratel care se intoarce
-    var card = document.createElement('div');
-    card.style.cssText = [
-      'width:80px;height:80px;',
-      'background:var(--surface2);',
-      'border:2px solid var(--gold);',
-      'border-radius:12px;',
-      'display:flex;align-items:center;justify-content:center;',
-      'flex-direction:column;gap:2px;',
-      'animation:flipReveal .6s ease forwards;',
-      'opacity:0;'
-    ].join('');
-    card.innerHTML = '<div style="font-family:Bebas Neue,sans-serif;font-size:30px;color:var(--gold);line-height:1;">' + p.number + '</div>' +
-      '<div style="font-size:9px;color:var(--muted);letter-spacing:.5px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p.name + '</div>';
-    grid.appendChild(card);
-    idx++;
-    setTimeout(showNext, 800);
+  if (drawAllPicked.length === 1) {
+    var bigNum = document.createElement('div');
+    bigNum.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:120px;color:var(--gold);line-height:1;animation:numIn .5s cubic-bezier(.175,.885,.32,1.275) .3s both;';
+    bigNum.className = 'pulse-draw';
+    bigNum.textContent = drawAllPicked[0].number;
+    finalOv.appendChild(bigNum);
+  } else {
+    var grid = document.createElement('div');
+    grid.className = 'draw-final-grid';
+    drawAllPicked.forEach(function(p, i) {
+      var chip = document.createElement('div');
+      chip.className = 'draw-f-chip';
+      chip.style.animationDelay = (i * 0.07) + 's';
+      chip.textContent = p.number;
+      grid.appendChild(chip);
+    });
+    finalOv.appendChild(grid);
   }
 
-  // Adauga keyframe pentru flip
-  if (!document.getElementById('flipStyle')) {
-    var st = document.createElement('style');
-    st.id = 'flipStyle';
-    st.textContent = '@keyframes flipReveal{0%{opacity:0;transform:rotateY(90deg) scale(.8);}60%{transform:rotateY(-10deg) scale(1.05);}100%{opacity:1;transform:rotateY(0deg) scale(1);}}';
-    document.head.appendChild(st);
-  }
+  var closeBtn = document.createElement('button');
+  closeBtn.style.cssText = 'margin-top:28px;background:var(--gold);color:#0f0e0d;border:none;border-radius:8px;padding:13px 40px;font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;animation:fadeUp .4s ease .7s both;';
+  closeBtn.textContent = 'INCHIDE';
+  closeBtn.onclick = function() {
+    var fo = document.getElementById('drawFinalOverlay');
+    if (fo) fo.remove();
+  };
+  finalOv.appendChild(closeBtn);
 
-  setTimeout(showNext, 400);
+  // Confetti
+  setTimeout(function() {
+    launchConfettiOn(finalOv);
+    setTimeout(function(){ launchConfettiOn(finalOv); }, 1000);
+    setTimeout(function(){ launchConfettiOn(finalOv); }, 2000);
+  }, 400);
 }
 
 // ── DELETE PARTICIPANT ─────────────────────────────
@@ -1866,8 +1738,7 @@ function deleteHistoric(index) {
 function confirmResetDrawOnly() {
   if (!confirm('Resetezi DOAR extragerea? Participantii raman, castigatorii vor fi stersi.')) return;
   state.winners = [];
-  document.getElementById('winnerReveal').style.display = 'none';
-  document.getElementById('drawStage').style.display = 'none';
+  // draw elements removed
   saveState(function() { renderAdmin(); });
 }
 
@@ -1888,8 +1759,7 @@ function confirmReset() {
     });
   }
   state.participants = []; state.takenNumbers = []; state.winners = [];
-  document.getElementById('winnerReveal').style.display = 'none';
-  document.getElementById('drawStage').style.display = 'none';
+  // draw elements removed
   saveState(function() { renderAdmin(); });
 }
 
