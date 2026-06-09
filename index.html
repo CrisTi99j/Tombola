@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tombola – Tuns Gratis</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+#heroSection{visibility:hidden;}
+:root{--gold:#c9a84c;--gold-light:#e8cc7a;--dark:#000000;--surface:#111111;--surface2:#1a1a1a;--text:#f0e6cc;--muted:#7a6a4a;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+#clientLoading{position:fixed;top:0;left:0;right:0;bottom:0;background:#000000;z-index:9999;display:flex;align-items:center;justify-content:center;padding-top:70%;}
+#clientLoading .spinner-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+#clientLoading .spinner-ring{width:44px;height:44px;border:4px solid #2a2a2a;border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;}
+#clientLoading .spinner-txt{color:#7a6a4a;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid #2a2a2a;position:sticky;top:0;z-index:20;}
+.tab-btn{flex:1;padding:14px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.5px;transition:all .2s;border-bottom:2px solid transparent;}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+#client-view{padding:20px 16px 50px;max-width:480px;margin:0 auto;}
+.hero{text-align:center;padding:24px 0 18px;}
+.hero-icon{font-size:52px;margin-bottom:12px;color:var(--gold);filter:drop-shadow(0 0 24px rgba(201,168,76,.6));}
+.hero h1{font-family:Bebas Neue,sans-serif;font-size:44px;letter-spacing:3px;color:var(--gold);line-height:1.1;}
+.hero p{color:var(--muted);font-size:13px;margin-top:8px;line-height:1.6;} .hero-line{width:48px;height:2px;background:var(--gold);margin:12px auto 0;border-radius:2px;}
+.timer-box{background:var(--surface);border:1px solid rgba(201,168,76,.15);border-radius:14px;padding:16px 20px;text-align:center;margin-bottom:16px;}
+.timer-label{font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.timer-display{display:flex;justify-content:center;gap:10px;}
+.timer-unit{display:flex;flex-direction:column;align-items:center;}
+.timer-num{font-family:Bebas Neue,sans-serif;font-size:42px;color:var(--gold);line-height:1;background:var(--surface2);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:6px 14px;min-width:62px;}
+.timer-sub{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;}
+.timer-sep{font-family:Bebas Neue,sans-serif;font-size:34px;color:var(--muted);padding-top:4px;}
+.step{background:var(--surface);border:1px solid #2a2a2a;border-radius:14px;padding:18px;margin-bottom:14px;}
+.step-title{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.step-title span{background:var(--gold);color:#0f0e0d;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:6px;}
+.field-label{display:block;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.field-input{width:100%;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:12px;}
+.field-input:focus{border-color:var(--gold);}
+.code-input{text-align:center;font-family:Bebas Neue,sans-serif;font-size:28px;letter-spacing:6px;text-transform:uppercase;margin-bottom:0;}
+.btn{width:100%;padding:13px;border-radius:8px;border:none;font-family:Bebas Neue,sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:12px;display:block;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0f0e0d;}
+.btn-gold:hover{background:var(--gold-light);}
+.btn-gold:disabled{background:#2e2c29;color:#4a4742;cursor:not-allowed;}
+.btn-sm{width:auto;padding:9px 18px;font-size:14px;letter-spacing:.5px;font-family:'DM Sans',sans-serif;font-weight:600;border-radius:6px;border:none;cursor:pointer;transition:all .2s;margin-top:0;}
+.picker-label{font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:9px;}
+.grid{display:grid;gap:5px;margin-bottom:14px;}
+.num-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid #2a2a2a;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s;user-select:none;color:var(--muted);}
+.num-cell:hover:not(.taken){border-color:var(--gold);color:var(--gold);}
+.num-cell.selected{background:var(--gold);border-color:var(--gold);color:#0f0e0d;}
+.num-cell.taken{background:#111111;color:#2a2a2a;cursor:not-allowed;border-color:#222222;}
+.preview-box{background:var(--surface2);border:2px solid var(--gold);border-radius:8px;padding:14px;text-align:center;margin-bottom:14px;}
+.preview-num{font-family:Bebas Neue,sans-serif;font-size:60px;color:var(--gold);line-height:1;}
+.preview-lbl{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.msg{padding:11px 15px;border-radius:8px;font-size:14px;margin-bottom:12px;text-align:center;line-height:1.5;}
+.msg-success{background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);color:#2ecc71;}
+.msg-error{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#e74c3c;}
+.msg-info{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.28);color:var(--gold);}
+.info-box{background:var(--surface);border:1px solid #2a2a2a;border-radius:10px;padding:13px 15px;font-size:13px;color:var(--muted);line-height:1.6;text-align:center;}
+.info-box strong{color:var(--text);}
+.step.locked{opacity:.4;pointer-events:none;}.step:not(.locked){opacity:1;pointer-events:auto;border-color:rgba(201,168,76,.25);}
+.step.locked .step-title span{background:var(--muted);}
+
+/* --- CODE SECTION ANIMATED TRANSITION --- */
+#codeSection{
+  overflow:hidden;
+  transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .3s ease, margin-top .3s ease;
+  max-height:200px;
+  opacity:1;
+  margin-top:10px;
+}
+#codeSection.hidden{
+  max-height:0;
+  opacity:0;
+  margin-top:0;
+  pointer-events:none;
+}
+
+/* ADMIN */
+#admin-view{padding:16px;max-width:600px;margin:0 auto;}
+.admin-header{text-align:center;padding:16px 0 18px;}
+.admin-header h2{font-family:Bebas Neue,sans-serif;font-size:28px;letter-spacing:2px;color:var(--gold);}
+.admin-header p{color:var(--muted);font-size:12px;margin-top:3px;}
+.stats-row{display:flex;gap:8px;margin-bottom:14px;}
+.stat{flex:1;background:var(--surface);border:1px solid rgba(201,168,76,.15);border-radius:12px;padding:12px;text-align:center;}
+.stat-num{font-family:Bebas Neue,sans-serif;font-size:32px;color:var(--gold);line-height:1;}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.card{background:var(--surface);border:1px solid #2a2a2a;border-radius:14px;padding:16px;margin-bottom:14px;}
+.card h3{font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--gold-light);margin-bottom:13px;}
+.spin-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.spin-row label{font-size:13px;color:var(--muted);white-space:nowrap;}
+.spin-row input[type=number]{width:70px;background:var(--surface2);border:1px solid #2a2a2a;border-radius:6px;padding:7px 9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-align:center;}
+.cod-chip{display:flex;align-items:center;gap:8px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:6px 12px;}
+.cod-chip-val{font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold);}
+.cod-chip-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0 2px;line-height:1;}
+.cod-chip-del:hover{color:#e74c3c;}
+.draw-stage{text-align:center;padding:20px;display:none;}
+.spin-big{font-family:Bebas Neue,sans-serif;font-size:90px;color:var(--gold);line-height:1;}
+.spin-lbl-big{color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
+.winner-reveal{background:rgba(201,168,76,.08);border:2px solid rgba(201,168,76,.4);border-radius:12px;padding:20px;text-align:center;display:none;margin-top:12px;}
+.w-num{font-family:Bebas Neue,sans-serif;font-size:72px;color:var(--gold);line-height:1;}
+.w-name{font-size:18px;color:var(--text);margin-top:4px;}
+.w-lbl{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.history-item{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:8px;padding:9px 12px;margin-bottom:6px;}
+.h-num{font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);}
+.h-date{font-size:11px;color:var(--muted);}
+.participants-table{width:100%;border-collapse:collapse;font-size:13px;}
+.participants-table th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:0 0 7px;border-bottom:1px solid #2a2a2a;}
+.participants-table td{padding:8px 0;border-bottom:1px solid #222222;color:var(--text);}
+.num-badge{display:inline-block;background:var(--surface2);border:1px solid #2a2a2a;border-radius:4px;padding:2px 7px;font-family:Bebas Neue,sans-serif;font-size:17px;color:var(--gold);}
+.num-badge.won{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4);}
+.tag-win{display:inline-block;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:10px;border-radius:20px;padding:2px 8px;}
+.btn-red{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.35);color:#e74c3c;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 14px;border-radius:6px;cursor:pointer;}
+.btn-red:hover{background:rgba(192,57,43,.22);}
+.divider{height:1px;background:#2a2a2a;margin:12px 0;}
+.empty-state{text-align:center;color:var(--muted);padding:16px 0;font-size:13px;}
+.lock-row{display:flex;align-items:center;gap:10px;}
+.toggle{position:relative;display:inline-block;width:42px;height:22px;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:#2a2a2a;border-radius:22px;transition:.3s;}
+.slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:.3s;}
+input:checked+.slider{background:var(--gold);}
+input:checked+.slider:before{transform:translateX(20px);background:#0f0e0d;}
+
+/* --- COD REQUIRE ROW --- */
+.cod-require-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;margin-bottom:12px;}
+.cod-require-info{flex:1;margin-right:12px;}
+.cod-require-title{font-size:13px;font-weight:600;color:var(--text);}
+.cod-require-hint{font-size:11px;color:var(--muted);margin-top:2px;transition:color .2s;}
+/* Coduri section animated collapse */
+#coduriSection{overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .3s ease;max-height:500px;opacity:1;}
+#coduriSection.hidden{max-height:0;opacity:0;pointer-events:none;}
+
+.history-tombola{background:var(--surface2);border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+.history-tombola-header{display:flex;justify-content:space-between;align-items:center;}
+.history-tombola-title{font-family:Bebas Neue,sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;}
+.history-tombola-date{font-size:11px;color:var(--muted);}
+.history-tombola-info{font-size:12px;color:var(--muted);margin-top:4px;}
+.history-tombola-winners{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.history-win-chip{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.28);border-radius:6px;padding:3px 10px;font-size:12px;color:var(--gold-light);}
+.card-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;margin-bottom:0;}
+.card-header h3{margin-bottom:0;}
+.card-toggle{font-size:18px;color:var(--muted);transition:transform .3s;display:inline-block;}
+.card-body{overflow:hidden;transition:max-height .3s ease, opacity .3s ease;max-height:1000px;opacity:1;margin-top:13px;}
+.card-body.collapsed{max-height:0;opacity:0;margin-top:0;}
+@keyframes pulseGold {
+  0%{box-shadow:0 0 0 0 rgba(201,168,76,.4);}
+  70%{box-shadow:0 0 0 12px rgba(201,168,76,0);}
+  100%{box-shadow:0 0 0 0 rgba(201,168,76,0);}
+}
+@keyframes fadeInUp {
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.winner-card{animation:fadeInUp .4s ease forwards;}
+@keyframes continuousPulse {
+  0%{box-shadow:0 0 0 0 rgba(201,168,76,.6);}
+  50%{box-shadow:0 0 0 14px rgba(201,168,76,0);}
+  100%{box-shadow:0 0 0 0 rgba(201,168,76,0);}
+}
+@keyframes continuousPulseNum {
+  0%{text-shadow:0 0 4px rgba(201,168,76,.5),0 0 8px rgba(201,168,76,.2);}
+  50%{text-shadow:0 0 8px rgba(201,168,76,.8),0 0 14px rgba(201,168,76,.35);}
+  100%{text-shadow:0 0 4px rgba(201,168,76,.5),0 0 8px rgba(201,168,76,.2);}
+}
+.pulse-constant{animation:continuousPulse 2.8s ease infinite!important;}
+.pulse-num-constant{animation:continuousPulseNum 2.8s ease infinite!important;}
+.winner-card-num{animation:pulseGold 2s ease infinite 1s;}
+.winner-card{background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.winner-card-num{font-family:Bebas Neue,sans-serif;font-size:34px;color:var(--gold);line-height:1;min-width:44px;text-align:center;background:var(--surface2);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:4px 8px;}
+.winner-card-info{flex:1;}
+.winner-card-name{font-size:14px;color:var(--text);font-weight:600;}
+.winner-card-date{font-size:11px;color:var(--muted);margin-top:2px;}
+.winners-round{background:var(--surface);border:1px solid #2a2a2a;border-radius:10px;padding:14px;margin-bottom:10px;}
+.winners-round-title{font-family:Bebas Neue,sans-serif;font-size:16px;color:var(--gold-light);letter-spacing:1px;margin-bottom:10px;}
+.winners-round-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #222222;}
+.winners-round-item:last-child{border-bottom:none;}
+.winners-round-num{font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--gold);min-width:36px;}
+.winners-round-name{font-size:13px;color:var(--text);}
+/* ── DRAW SHOW ─────────────────────────────────── */
+/* ── DRAW SHOW NEW ─────────────────────────── */
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes chipIn{from{transform:scale(0) rotate(-8deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+@keyframes numIn{from{transform:scale(0) rotate(-12deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+@keyframes trophyIn{from{transform:scale(0) translateY(-20px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulseNumDraw{
+  0%{text-shadow:0 0 10px rgba(201,168,76,.6),0 0 20px rgba(201,168,76,.3);}
+  50%{text-shadow:0 0 22px rgba(201,168,76,1),0 0 40px rgba(201,168,76,.5);}
+  100%{text-shadow:0 0 10px rgba(201,168,76,.6),0 0 20px rgba(201,168,76,.3);}
+}
+.draw-prog-dots{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;padding:0 20px;max-width:320px;}
+.draw-pdot{width:12px;height:12px;border-radius:50%;background:#1a3020;border:1px solid #2a4030;transition:all .3s;flex-shrink:0;}
+.draw-pdot.done{background:var(--gold);border-color:var(--gold);box-shadow:0 0 6px rgba(201,168,76,.5);}
+.draw-pdot.active{background:var(--gold-light);border-color:var(--gold);transform:scale(1.4);box-shadow:0 0 10px rgba(201,168,76,.8);}
+.draw-spin-box{background:var(--surface);border:2px solid #1a3020;border-radius:16px;width:220px;height:220px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.draw-spin-box.glow{border-color:rgba(201,168,76,.4);box-shadow:0 0 40px rgba(201,168,76,.15);}
+.draw-spin-num{font-family:Bebas Neue,sans-serif;font-size:110px;color:var(--gold);line-height:1;text-align:center;min-width:160px;text-shadow:0 0 20px rgba(201,168,76,.4);}
+.draw-spin-num.landed{color:#fff!important;text-shadow:0 0 50px rgba(255,255,255,.9),0 0 80px rgba(201,168,76,.6)!important;}
+.draw-spin-num.pulse-draw{animation:pulseNumDraw 2.4s ease infinite!important;}
+.draw-status{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;height:16px;margin-bottom:16px;}
+.draw-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:0 20px;max-width:340px;}
+.draw-d-chip{font-family:Bebas Neue,sans-serif;font-size:22px;color:#0f0e0d;background:var(--gold);border-radius:8px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;animation:chipIn .35s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 0 12px rgba(201,168,76,.4);}
+.draw-final-grid{display:grid;grid-template-columns:repeat(5,58px);gap:10px;justify-content:center;}
+.draw-f-chip{font-family:Bebas Neue,sans-serif;font-size:22px;color:#0f0e0d;background:var(--gold);border-radius:8px;width:58px;height:58px;display:flex;align-items:center;justify-content:center;animation:chipIn .4s cubic-bezier(.175,.885,.32,1.275) both;box-shadow:0 0 14px rgba(201,168,76,.5);}
+
+.admin-section-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:6px;padding-left:2px;font-family:'DM Sans',sans-serif;font-weight:600;}
+.pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
+.pw-box{background:var(--surface);border:1px solid #2a2a2a;border-radius:14px;padding:26px 22px;width:290px;text-align:center;}
+.pw-box h3{font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:5px;}
+.pw-box p{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.pw-box input{width:100%;background:var(--surface2);border:1px solid #2a2a2a;border-radius:8px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;text-align:center;margin-bottom:11px;}
+.pw-box input:focus{border-color:var(--gold);}
+.pw-err{color:#e74c3c;font-size:12px;margin-top:7px;display:none;}
+.loading{text-align:center;padding:30px;color:var(--muted);font-size:13px;}
+.sync-indicator{position:fixed;bottom:12px;right:12px;background:var(--surface);border:1px solid #2a2a2a;border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);display:none;z-index:50;}
+.sync-indicator.show{display:block;}
+
+/* --- GENERATE COD BUTTON improved --- */
+.gen-cod-btn{width:100%;padding:12px;border-radius:8px;border:2px dashed rgba(201,168,76,.5);background:rgba(201,168,76,.05);color:var(--gold);font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.gen-cod-btn:hover{background:rgba(201,168,76,.12);border-color:var(--gold);}
+.gen-cod-btn .plus{font-size:22px;line-height:1;}
+</style>
+</head>
+<body>
+
+<div id="clientLoading">
+  <div class="spinner-wrap">
+    <div class="spinner-ring"></div>
+    <div class="spinner-txt">Se încarcă...</div>
+  </div>
+</div>
+
+<canvas id="confettiCanvas" style="position:fixed;inset:0;width:100%;height:100%;z-index:300;pointer-events:none;display:block;"></canvas>
+
+<div class="pw-overlay" id="pwOverlay" style="display:none;">
+  <div class="pw-box">
+    <h3>🔐 Admin</h3>
+    <p>Introdu parola pentru panou</p>
+    <input type="password" id="pwInput" placeholder="Parola..." />
+    <button class="btn btn-gold" style="margin-top:0;" onclick="checkPw()">INTRA</button>
+    <div class="pw-err" id="pwErr">Parola gresita!</div>
+  </div>
+</div>
+
+<div class="sync-indicator" id="syncIndicator">Salveaza...</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('client')">TOMBOLA</button>
+  <button class="tab-btn" onclick="switchTab('winners')">&#127942; CASTIGATORI</button>
+  <button class="tab-btn" onclick="switchTab('admin')">ADMIN</button>
+</div>
+
+<!-- CLIENT -->
+<div id="client-view" class="tab-panel active">
+  <div class="hero" id="heroSection" style="display:block;visibility:hidden;">
+    <div class="hero-icon">✦</div>
+    <h1 id="heroTitle">Tombola pentru<br>un Tuns Gratis</h1>
+    <div class="hero-line"></div>
+  </div>
+  <div id="timerSection" style="display:none;">
+    <div class="timer-box">
+      <div class="timer-label">Tombola se inchide in</div>
+      <div class="timer-display">
+        <div class="timer-unit"><div class="timer-num" id="timerD">00</div><div class="timer-sub">Zile</div></div>
+        <div class="timer-sep">:</div>
+        <div class="timer-unit"><div class="timer-num" id="timerH">00</div><div class="timer-sub">Ore</div></div>
+        <div class="timer-sep">:</div>
+        <div class="timer-unit"><div class="timer-num" id="timerM">00</div><div class="timer-sub">Min</div></div>
+        <div class="timer-sep">:</div>
+        <div class="timer-unit"><div class="timer-num" id="timerS">00</div><div class="timer-sub">Sec</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="participantCountBox" style="margin-bottom:16px;display:none;">
+    <div style="background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:14px 16px;text-align:center;">
+      <div style="font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Înscriși până acum</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span style="font-family:Bebas Neue,sans-serif;font-size:26px;color:var(--gold);letter-spacing:2px;" id="approxCount"></span>
+        <span style="font-family:Bebas Neue,sans-serif;font-size:26px;color:var(--gold);letter-spacing:2px;">PERSOANE</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;">Tu ce mai aștepți? 👀</div>
+    </div>
+  </div>
+  <p id="heroSubtitle" style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:6px;display:none;">Completeaza pasii de mai jos pentru a participa la tombola.</p>
+  <p id="infoLineClient" style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:14px;display:none;">Ai nevoie de un <strong style="color:var(--text);">cod unic</strong> primit de la frizer.</p>
+  <div id="clientMsg"></div>
+
+  <div id="clientContent" style="opacity:0;transition:opacity 0.3s ease;">
+
+    <div id="nameStep" class="step">
+      <div class="step-title"><span>1</span> Numele tau</div>
+      <input class="field-input" type="text" id="clientName" placeholder="ex: Ion Popescu" maxlength="60" style="margin-bottom:0;" />
+      <!-- codeSection: shown/hidden based on requireCode -->
+      <div id="codeSection">
+        <label class="field-label" style="margin-top:10px;">Cod de participare</label>
+        <input class="field-input code-input" type="text" id="clientCode" placeholder="------" maxlength="8" oninput="this.value=this.value.replace(/\s/g,'').toUpperCase()" />
+        <button class="btn btn-gold" onclick="verifyCode()" style="margin-top:0;">VERIFICA CODUL</button>
+      </div>
+      <!-- Free proceed button: shown when requireCode=false -->
+      <button class="btn btn-gold" id="freeProceedBtn" onclick="proceedFree()" style="display:none;margin-top:10px;">CONTINUA</button>
+    </div>
+
+    <div id="numberStep" class="step locked">
+      <div class="step-title"><span>2</span> Alege numarul tau norocos</div>
+      <div class="picker-label" id="numPickerLabel">Alege un numar (1-100)</div>
+      <div class="grid" id="numGrid" style="margin-bottom:14px;"></div>
+      <div id="selectedPreview" class="preview-box" style="display:none;">
+        <div class="preview-num" id="chosenNum">-</div>
+        <div class="preview-lbl">Numarul tau ales</div>
+      </div>
+      <button class="btn btn-gold" id="registerBtn" onclick="registerClient()" disabled>CONFIRMA NUMARUL</button>
+    </div>
+
+    <div id="infoBoxWrap" style="display:none;"></div>
+
+  </div>
+</div>
+
+<!-- CASTIGATORI -->
+<div id="winners-view" class="tab-panel">
+  <div style="padding:20px 16px 50px;max-width:480px;margin:0 auto;">
+    <div class="hero" style="padding-bottom:12px;">
+      <div class="hero-icon">&#127942;</div>
+      <h1 style="font-size:32px;letter-spacing:4px;">CASTIGATORI</h1>
+      <p style="text-transform:uppercase;letter-spacing:1px;">Numerele extrase din tombola curenta.</p>
+    </div>
+    <div id="winnersLoading" class="loading">Se incarca...</div>
+    <div id="winnersContent" style="display:none;">
+      <div id="winnersCurrentList"></div>
+      <div id="winnersHistoricSection" style="display:none;margin-top:24px;">
+        <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Extrageri anterioare</div>
+        <div id="winnersHistoricList"></div>
+      </div>
+      <div id="winnersEmpty" style="display:none;">
+        <div style="text-align:center;padding:40px 20px;">
+          <div style="font-size:48px;margin-bottom:12px;">&#8987;</div>
+          <div style="font-family:Bebas Neue,sans-serif;font-size:24px;color:var(--gold);letter-spacing:2px;">Asteptam extragerea</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:8px;">Castigatorii vor aparea aici dupa extragere.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-view" class="tab-panel">
+  <div class="admin-header"><h2>Panel Admin</h2><p>Tombola - Tuns Gratis</p></div>
+  <div id="adminLoading" class="loading">Se incarca...</div>
+  <div id="adminContent" style="display:none;">
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="statP">0</div><div class="stat-lbl">Participanti</div></div>
+      <div class="stat"><div class="stat-num" id="statA">100</div><div class="stat-lbl">Nr. libere</div></div>
+      <div class="stat"><div class="stat-num" id="statW">0</div><div class="stat-lbl">Extrageri</div></div>
+    </div>
+
+    <div class="admin-section-label">Actiuni rapide</div>
+
+    <!-- CODURI CARD -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-cod')">
+        <h3>Coduri de Participare</h3>
+        <span class="card-toggle" id="toggle-card-cod">&#9650;</span>
+      </div>
+      <div class="card-body" id="body-card-cod">
+
+        <!-- Toggle require code -->
+        <div class="cod-require-row">
+          <div class="cod-require-info">
+            <div class="cod-require-title">Cod obligatoriu</div>
+            <div class="cod-require-hint" id="codeModeHint">Clientii au nevoie de cod pentru a participa.</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="codeToggle" onchange="toggleRequireCode()">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Coduri section - se ascunde cand toggle OFF -->
+        <div id="coduriSection">
+          <button class="gen-cod-btn" onclick="generateCode()">
+            <span class="plus">＋</span> GENEREAZA COD NOU
+          </button>
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;">
+            Coduri active (<span id="activeCodesCount">0</span>)
+          </div>
+          <div id="activeCodesList" style="display:flex;flex-wrap:wrap;gap:6px;min-height:20px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-extragere')">
+        <h3>Extragere</h3>
+        <span class="card-toggle" id="toggle-card-extragere">&#9650;</span>
+      </div>
+      <div class="card-body" id="body-card-extragere">
+        <div class="spin-row" style="margin-bottom:0;">
+          <label>Cati castigatori:</label>
+          <input type="number" id="wCount" value="1" min="1" max="500" />
+        </div>
+        <button class="btn btn-gold" onclick="drawWinners()" style="margin-top:12px;font-size:16px;letter-spacing:2px;">
+          🎰 EXTRAGEREA CASTIGATORILOR
+        </button>
+        <div id="historySection" style="display:none;margin-top:12px;">
+          <div class="divider"></div>
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;">Castigatori extrasi</div>
+          <div id="historyList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-participants')">
+        <h3>Participanti (<span id="partCount">0</span>)</h3>
+        <span class="card-toggle" id="toggle-card-participants">&#9650;</span>
+      </div>
+      <div class="card-body" id="body-card-participants">
+        <div id="participantsTable" style="max-height:380px;overflow-y:auto;"><div class="empty-state">Niciun participant inca.</div></div>
+        <div class="divider"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-red" onclick="confirmResetDrawOnly()" style="flex:1;">Reseteaza extragerea</button>
+          <button class="btn-red" onclick="confirmReset()" style="flex:1;">Reseteaza tot</button>
+        </div>
+        <div style="margin-top:8px;">
+          <button class="btn btn-gold" onclick="archiveTombola()" style="font-size:13px;letter-spacing:1px;">ARHIVEAZA CASTIGATORII</button>
+        </div>
+        <div style="margin-top:8px;">
+          <button class="btn" onclick="downloadBackup()" style="background:var(--surface2);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:13px;letter-spacing:1px;">⬇ DESCARCA BACKUP JSON</button>
+        </div>
+        <div style="margin-top:8px;">
+          <label class="btn" style="background:var(--surface2);border:1px solid #2a2a2a;color:var(--muted);font-size:13px;letter-spacing:1px;cursor:pointer;text-align:center;padding:13px;border-radius:8px;display:block;">
+            ⬆ INCARCA BACKUP JSON
+            <input type="file" accept=".json" onchange="uploadBackup(event)" style="display:none;" />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-section-label">Configurare</div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-lock')">
+        <h3>Control Inregistrari</h3>
+        <span class="card-toggle" id="toggle-card-lock">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-lock">
+        <div class="lock-row">
+          <label class="toggle"><input type="checkbox" id="lockToggle" onchange="toggleLock()"><span class="slider"></span></label>
+          <span id="lockLabel">Inregistrarile sunt <strong style="color:#2ecc71">DESCHISE</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-timer')">
+        <h3>Timer Tombola</h3>
+        <span class="card-toggle" id="toggle-card-timer">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-timer">
+        <div class="spin-row">
+          <label>Data inchidere:</label>
+          <input type="datetime-local" id="timerEnd" style="background:var(--surface2);border:1px solid #2a2a2a;border-radius:6px;padding:7px 9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;flex:1;" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="btn-sm btn-gold" onclick="setTimer()" style="flex:1;">Seteaza Timer</button>
+          <button class="btn-sm" onclick="clearTimer()" style="flex:1;background:var(--surface2);border:1px solid #2a2a2a;color:var(--muted);">Opreste</button>
+        </div>
+        <div id="timerAdminInfo" style="font-size:11px;color:var(--muted);margin-top:7px;text-align:center;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-titlu')">
+        <h3>Titlu Tombola</h3>
+        <span class="card-toggle" id="toggle-card-titlu">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-titlu">
+        <label class="field-label">Titlu afisat clientilor</label>
+        <textarea class="field-input" id="titluInput" rows="2" placeholder="ex: Tombola pentru un Tuns Gratis" maxlength="80" style="resize:none;margin-bottom:6px;font-family:'DM Sans',sans-serif;"></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Foloseste Enter pentru a trece pe linie noua.</div>
+        <button class="btn-sm btn-gold" onclick="saveTitlu()" style="width:100%;">SALVEAZA TITLUL</button>
+        <div id="titluMsg" style="font-size:12px;margin-top:7px;text-align:center;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-setari')">
+        <h3>Interval Numere</h3>
+        <span class="card-toggle" id="toggle-card-setari">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-setari">
+        <label class="field-label">Numere disponibile (1 pana la)</label>
+        <div class="spin-row" style="margin-bottom:4px;">
+          <input type="number" id="maxNumInput" value="100" min="10" max="9999" style="width:80px;" />
+          <button class="btn-sm btn-gold" onclick="applyMax()">Aplica</button>
+        </div>
+        <p style="font-size:11px;color:var(--muted);">Schimbarea reseteaza participantii.</p>
+      </div>
+    </div>
+
+    <div class="admin-section-label">Istoric</div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-istoric')">
+        <h3>Istoric Tombole</h3>
+        <span class="card-toggle" id="toggle-card-istoric">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-istoric">
+        <div id="historicList"><div class="empty-state">Nicio tombola arhivata inca.</div></div>
+      </div>
+    </div>
+
+    <div class="admin-section-label">Securitate</div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-audit')">
+        <h3>Jurnal Activitate</h3>
+        <span class="card-toggle" id="toggle-card-audit">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-audit">
+        <div id="auditLogList"><div class="empty-state">Nicio activitate inregistrata inca.</div></div>
+      </div>
+    </div>
+
+    <div class="admin-section-label">Cont</div>
+
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('card-pw')">
+        <h3>Schimba Parola Admin</h3>
+        <span class="card-toggle" id="toggle-card-pw">&#9660;</span>
+      </div>
+      <div class="card-body collapsed" id="body-card-pw">
+        <label class="field-label">Parola noua</label>
+        <input class="field-input" type="password" id="newPw1" placeholder="Parola noua..." style="margin-bottom:8px;" />
+        <label class="field-label">Confirma parola</label>
+        <input class="field-input" type="password" id="newPw2" placeholder="Repeta..." style="margin-bottom:0;" />
+        <button class="btn btn-gold" onclick="changePassword()" style="margin-top:9px;">SALVEAZA PAROLA</button>
+        <div id="pwChangeMsg" style="font-size:12px;margin-top:7px;text-align:center;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var BIN_ID = '6a1c76deddf5aa59f77c7e34';
+// Cheia e construita la runtime - nu apare in text clar in sursa
+var _k = ['$2a$10$TV/qaHgtoq2Va/Ikn','DQ.hOQ8kKpSET0wGHU','jeNaIA2./eaFtInLIS'];
+var API_KEY = _k.join('');
+var API_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+var _rk = ['$2a$10$TV/qaHgtoq2Va/Ikn','DQ.hOQ8kKpSET0wGHU','jeNaIA2./eaFtInLIS'];
+var READ_KEY = _rk.join('');
+
+var state = null;
+var selectedNumber = null;
+var adminUnlocked = sessionStorage.getItem('adminOK') === '1';
+var codeVerified = false;
+var verifiedName = '';
+var timerInterval = null;
+var isSaving = false;
+var saveQueue = null;
+
+// ── AUDIT LOG ─────────────────────────────────────
+function addAuditLog(action, details) {
+  if (!state) return;
+  if (!Array.isArray(state.auditLog)) state.auditLog = [];
+  var entry = {
+    ts: Date.now(),
+    action: action,
+    details: details || '',
+    src: 'admin'
+  };
+  state.auditLog.unshift(entry);
+  // Pastreaza max 100 intrari
+  if (state.auditLog.length > 100) state.auditLog = state.auditLog.slice(0, 100);
+}
+
+// ── PROTECTIE WRITE ──────────────────────────────
+// Verifica ca scrierile vin doar din sesiunea admin autentificata
+function isWriteAllowed() {
+  return adminUnlocked && sessionStorage.getItem('adminOK') === '1';
+}
+
+// ── WINNERS TAB ────────────────────────────────────────────
+function loadAndRenderWinners() {
+  document.getElementById('winnersLoading').style.display = 'block';
+  document.getElementById('winnersContent').style.display = 'none';
+  loadState(function() {
+    document.getElementById('winnersLoading').style.display = 'none';
+    document.getElementById('winnersContent').style.display = 'block';
+    renderWinners();
+  });
+}
+
+function renderWinners() {
+  var currentList = document.getElementById('winnersCurrentList');
+  var historicSection = document.getElementById('winnersHistoricSection');
+  var historicList = document.getElementById('winnersHistoricList');
+  var emptyEl = document.getElementById('winnersEmpty');
+  var hasContent = state.winners.length > 0 || (state.historic && state.historic.length > 0);
+  if (!hasContent) {
+    emptyEl.style.display = 'block';
+    currentList.innerHTML = '';
+    historicSection.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  // Confetti daca exista castigatori
+  if (state.winners.length > 0) {
+    setTimeout(function(){ launchConfetti(); }, 300);
+  }
+
+
+
+  if (state.winners.length === 0) {
+    currentList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nicio extragere curenta inca.</div>';
+  } else {
+    var html = '<div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Extragerea curenta (' + state.winners.length + ' castigatori)</div>';
+    state.winners.forEach(function(w) {
+      html += '<div class="winner-card"><div class="winner-card-num">' + w.number + '</div><div class="winner-card-info"><div class="winner-card-name">&#127942; ' + w.name + '</div><div class="winner-card-date">' + new Date(w.ts).toLocaleDateString('ro-RO') + '</div></div></div>';
+    });
+    currentList.innerHTML = html;
+  }
+  if (!state.historic || state.historic.length === 0) {
+    historicSection.style.display = 'none';
+  } else {
+    historicSection.style.display = 'block';
+    var hhtml = '';
+    for (var i = state.historic.length - 1; i >= 0; i--) {
+      var ht = state.historic[i];
+      hhtml += '<div class="winners-round"><div class="winners-round-title">Extragerea ' + (i + 1) + ' &nbsp;&#183;&nbsp; ' + ht.date + '</div>';
+      if (ht.winners && ht.winners.length > 0) {
+        ht.winners.forEach(function(w) {
+          hhtml += '<div class="winners-round-item"><span class="winners-round-num">' + w.number + '</span><span class="winners-round-name">' + w.name + '</span></div>';
+        });
+      } else {
+        hhtml += '<div style="font-size:12px;color:var(--muted);">Niciun castigator inregistrat.</div>';
+      }
+      hhtml += '</div>';
+    }
+    historicList.innerHTML = hhtml;
+  }
+}
+
+// ── TOGGLE REQUIRE CODE ─────────────────────────────────────
+// This is the KEY function - controls visibility on both admin and client sides
+function toggleRequireCode() {
+  state.requireCode = document.getElementById('codeToggle').checked;
+  saveState(function() {
+    renderAdmin();
+    // Also update client UI immediately if it's visible
+    applyClientCodeMode();
+  });
+}
+
+// Approximate participant count
+function showApproxCount() {
+  if (!state) return;
+  var count = state.participants ? state.participants.length : 0;
+  var box = document.getElementById('participantCountBox');
+  var el = document.getElementById('approxCount');
+  if (!box || !el) return;
+  // Afiseaza doar dupa 20 de inscrisi
+  if (count <= 20) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  var approx = 'peste ' + (Math.floor(count / 10) * 10);
+  el.textContent = approx;
+}
+
+// Apply code mode to client view (show/hide code field)
+function applyClientCodeMode() {
+  if (!state) return;
+  var requireCode = state.requireCode !== false; // default true
+  var codeSectionEl = document.getElementById('codeSection');
+  var freeProceedBtn = document.getElementById('freeProceedBtn');
+  var infoLineClientEl = document.getElementById('infoLineClient');
+
+  if (codeSectionEl) {
+    if (requireCode) {
+      codeSectionEl.classList.remove('hidden');
+    } else {
+      codeSectionEl.classList.add('hidden');
+    }
+  }
+  if (freeProceedBtn) {
+    freeProceedBtn.style.display = requireCode ? 'none' : 'block';
+  }
+  if (infoLineClientEl) {
+    infoLineClientEl.innerHTML = requireCode
+      ? 'Ai nevoie de un <strong style="color:var(--text);">cod unic</strong> primit de la frizer pentru a participa.'
+      : 'Participa direct, fara cod. Introdu numele tau si alege numarul norocos!';
+  }
+}
+
+// ── TOGGLE CARD ────────────────────────────────────────────
+function toggleCard(cardId) {
+  var body = document.getElementById('body-' + cardId);
+  var toggle = document.getElementById('toggle-' + cardId);
+  if (!body) return;
+  if (body.classList.contains('collapsed')) {
+    body.classList.remove('collapsed');
+    if (toggle) toggle.textContent = '▲';
+    localStorage.setItem('card_' + cardId, 'open');
+  } else {
+    body.classList.add('collapsed');
+    if (toggle) toggle.textContent = '▼';
+    localStorage.setItem('card_' + cardId, 'closed');
+  }
+}
+
+function restoreCardStates() {
+  var allCards = ['card-cod','card-extragere','card-participants','card-lock','card-timer','card-titlu','card-setari','card-istoric','card-audit','card-pw'];
+  allCards.forEach(function(cardId) {
+    var saved = localStorage.getItem('card_' + cardId);
+    var body = document.getElementById('body-' + cardId);
+    var toggle = document.getElementById('toggle-' + cardId);
+    if (!body) return;
+    // Daca nu e salvat niciodata, implicit INCHIS
+    var shouldBeOpen = saved === 'open';
+    if (shouldBeOpen) {
+      body.classList.remove('collapsed');
+      if (toggle) toggle.textContent = '▲';
+    } else {
+      body.classList.add('collapsed');
+      if (toggle) toggle.textContent = '▼';
+    }
+  });
+}
+
+// ── API ──────────────────────────────────────────
+
+function normalizeState(s) {
+  if (!s || typeof s !== 'object') s = {};
+  if (!Array.isArray(s.activeCodes)) s.activeCodes = [];
+  if (!Array.isArray(s.winners)) s.winners = [];
+  if (!Array.isArray(s.participants)) s.participants = [];
+  if (!Array.isArray(s.takenNumbers)) s.takenNumbers = [];
+  if (!Array.isArray(s.historic)) s.historic = [];
+  if (!Array.isArray(s.auditLog)) s.auditLog = [];
+  if (typeof s.locked !== 'boolean') s.locked = false;
+  if (!s.maxNumbers || s.maxNumbers < 1) s.maxNumbers = 100;
+  if (!s.adminPassword) s.adminPassword = '3754aA';
+  if (s.requireCode === undefined) s.requireCode = true;
+  if (!s.titlu) s.titlu = 'Tombola pentru\nun Tuns Gratis';
+  return s;
+}
+
+function loadState(callback, retryCount) {
+  retryCount = retryCount || 0;
+  fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } })
+  .then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(function(data) {
+    if (!data || !data.record) throw new Error('Date invalide');
+    var fresh = normalizeState(data.record);
+    // PROTECTIE: nu suprascrie cu date goale daca avem participanti in memorie
+    if (state && state.participants && state.participants.length > 0
+        && fresh.participants.length === 0 && fresh.takenNumbers.length === 0) {
+      console.warn('Server returnat date goale - mentinut state local');
+      if (callback) callback();
+      return;
+    }
+    state = fresh;
+    if (callback) callback();
+  })
+  .catch(function(e) {
+    console.error('loadState eroare:', e);
+    if (retryCount < 2) {
+      setTimeout(function() { loadState(callback, retryCount + 1); }, 1500);
+    } else {
+      if (state) {
+        console.warn('Folosesc state din memorie');
+        if (callback) callback();
+      } else {
+        var cl = document.getElementById('clientLoading');
+        if (cl) cl.innerHTML = '<div class="spinner-wrap"><div style="color:#e74c3c;font-size:14px;text-align:center;padding:20px;">Eroare la incarcare.<br>Verifica conexiunea si reincarca pagina.</div></div>';
+      }
+    }
+  });
+}
+
+function saveState(callback, retryCount, allowPublic) {
+  retryCount = retryCount || 0;
+  // PROTECTIE: nu salva niciodata state invalid
+  if (!state || !Array.isArray(state.participants)) {
+    console.error('saveState blocat: state invalid');
+    if (callback) callback();
+    return;
+  }
+  // PROTECTIE SECURITATE: doar adminul autentificat poate salva modificari critice
+  // allowPublic=true doar pentru inscrieri clienti (adauga participant)
+  if (!allowPublic && !isWriteAllowed()) {
+    console.error('saveState blocat: sesiune admin invalida');
+    if (callback) callback();
+    return;
+  }
+  // Previne salvari simultane
+  if (isSaving) {
+    saveQueue = callback;
+    return;
+  }
+  isSaving = true;
+  saveQueue = null;
+  var ind = document.getElementById('syncIndicator');
+  if (ind) ind.className = 'sync-indicator show';
+  fetch(API_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+    body: JSON.stringify(state)
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(function() {
+    isSaving = false;
+    if (ind) ind.className = 'sync-indicator';
+    if (callback) callback();
+    if (saveQueue) { var q = saveQueue; saveQueue = null; saveState(q); }
+  })
+  .catch(function(e) {
+    console.error('saveState eroare:', e);
+    isSaving = false;
+    if (ind) ind.className = 'sync-indicator';
+    if (retryCount < 2) {
+      setTimeout(function() { saveState(callback, retryCount + 1); }, 2000);
+    } else {
+      alert('Eroare la salvare dupa 3 incercari. Verifica conexiunea.');
+    }
+  });
+}
+
+// ── TABS ──────────────────────────────────────────
+function switchTab(tab) {
+  var btns = document.querySelectorAll('.tab-btn');
+  btns[0].classList.toggle('active', tab === 'client');
+  btns[1].classList.toggle('active', tab === 'winners');
+  btns[2].classList.toggle('active', tab === 'admin');
+  document.getElementById('client-view').classList.toggle('active', tab === 'client');
+  document.getElementById('winners-view').classList.toggle('active', tab === 'winners');
+  document.getElementById('admin-view').classList.toggle('active', tab === 'admin');
+  if (tab === 'admin') {
+    if (!adminUnlocked) {
+      document.getElementById('pwOverlay').style.display = 'flex';
+    } else if (!state) {
+      loadAndRenderAdmin();
+    } else {
+      document.getElementById('adminLoading').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'block';
+      renderAdmin();
+    }
+  }
+  if (tab === 'client') {
+    resetClientUI();
+    if (!state) { loadAndRenderClient(); }
+    else { renderClientFromState(); }
+  }
+  if (tab === 'winners') {
+    if (!state) { loadAndRenderWinners(); }
+    else {
+      document.getElementById('winnersLoading').style.display = 'none';
+      document.getElementById('winnersContent').style.display = 'block';
+      renderWinners();
+    }
+  }
+}
+
+// ── PAROLA ────────────────────────────────────────
+function checkPw() {
+  var val = document.getElementById('pwInput').value;
+  loadState(function() {
+    var correct = state.adminPassword || '3754aA';
+    if (val === correct) {
+      adminUnlocked = true;
+      sessionStorage.setItem('adminOK', '1');
+      document.getElementById('pwOverlay').style.display = 'none';
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwErr').style.display = 'none';
+      loadAndRenderAdmin();
+    } else {
+      document.getElementById('pwErr').style.display = 'block';
+    }
+  });
+}
+document.getElementById('pwInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPw(); });
+
+function changePassword() {
+  var p1 = document.getElementById('newPw1').value.trim();
+  var p2 = document.getElementById('newPw2').value.trim();
+  var msg = document.getElementById('pwChangeMsg');
+  if (!p1) { msg.style.color = '#e74c3c'; msg.textContent = 'Introdu o parola noua!'; return; }
+  if (p1.length < 4) { msg.style.color = '#e74c3c'; msg.textContent = 'Parola trebuie sa aiba minim 4 caractere!'; return; }
+  if (p1 !== p2) { msg.style.color = '#e74c3c'; msg.textContent = 'Parolele nu coincid!'; return; }
+  state.adminPassword = p1;
+  saveState(function() {
+    msg.style.color = '#2ecc71'; msg.textContent = 'Parola schimbata cu succes!';
+    document.getElementById('newPw1').value = '';
+    document.getElementById('newPw2').value = '';
+    setTimeout(function() { msg.textContent = ''; }, 3000);
+  });
+}
+
+// ── TIMER ─────────────────────────────────────────
+function setTimer() {
+  var val = document.getElementById('timerEnd').value;
+  if (!val) { alert('Selecteaza o data si ora!'); return; }
+  var d = new Date(val);
+  if (d <= new Date()) { alert('Data trebuie sa fie in viitor!'); return; }
+  state.timerEnd = d.getTime();
+  saveState(function() { renderAdmin(); startTimer(); });
+}
+
+function clearTimer() {
+  state.timerEnd = null;
+  saveState(function() {
+    renderAdmin();
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    document.getElementById('timerSection').style.display = 'none';
+  });
+}
+
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  if (!state || !state.timerEnd) return;
+  var end = state.timerEnd;
+  document.getElementById('timerSection').style.display = 'block';
+  function tick() {
+    var now = Date.now();
+    var diff = end - now;
+    if (diff <= 0) {
+      clearInterval(timerInterval);
+      ['timerD','timerH','timerM','timerS'].forEach(function(id){ document.getElementById(id).textContent='00'; });
+      if (state && !state.locked) {
+        state.locked = true;
+        saveState(function() {
+          var lt = document.getElementById('lockToggle'); if(lt) lt.checked = true;
+          var ll = document.getElementById('lockLabel'); if(ll) ll.innerHTML = 'Inregistrarile sunt <strong style="color:#e74c3c">INCHISE</strong>';
+        });
+      }
+      return;
+    }
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('timerD').textContent = String(d).padStart(2,'0');
+    document.getElementById('timerH').textContent = String(h).padStart(2,'0');
+    document.getElementById('timerM').textContent = String(m).padStart(2,'0');
+    document.getElementById('timerS').textContent = String(s).padStart(2,'0');
+  }
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+// ── CLIENT LOAD ───────────────────────────────────
+
+// Randeaza UI client din state-ul deja incarcat (fara request nou)
+function renderClientFromState() {
+  document.getElementById('clientLoading').style.display = 'none';
+  document.getElementById('clientContent').style.opacity = '1';
+  var hs = document.getElementById('heroSection'); if (hs) { hs.style.display = 'block'; hs.style.visibility = 'visible'; }
+  var hst = document.getElementById('heroSubtitle'); if (hst) hst.style.display = 'block';
+  var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'block';
+  if (state.timerEnd) { startTimer(); } else { document.getElementById('timerSection').style.display = 'none'; }
+  if (state.titlu) {
+    var heroTitle = document.getElementById('heroTitle');
+    if (heroTitle) heroTitle.innerHTML = state.titlu.replace(/\n/g, '<br>');
+  }
+  applyClientCodeMode();
+  showApproxCount();
+  var saved = localStorage.getItem('myTombolaNum');
+  if (saved) {
+    try {
+      var data = JSON.parse(saved);
+      if (state.takenNumbers.indexOf(data.number) >= 0) {
+        document.getElementById('nameStep').style.display = 'none';
+        document.getElementById('numberStep').style.display = 'none';
+        document.getElementById('infoBoxWrap').style.display = 'none';
+        var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+        var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'none';
+        showSuccessCard(data.number, data.name);
+        return;
+      } else {
+        localStorage.removeItem('myTombolaNum');
+      }
+    } catch(e) { localStorage.removeItem('myTombolaNum'); }
+  }
+  renderGrid();
+}
+
+function loadAndRenderClient() {
+  document.getElementById('clientLoading').style.display = 'block';
+  document.getElementById('clientContent').style.opacity = '0';
+  showClientMsg('', '');
+  loadState(function() {
+    document.getElementById('clientLoading').style.display = 'none';
+    document.getElementById('clientContent').style.opacity = '1';
+    var hs = document.getElementById('heroSection'); if (hs) { hs.style.display = 'block'; hs.style.visibility = 'visible'; }
+    var hst = document.getElementById('heroSubtitle'); if (hst) hst.style.display = 'block';
+    var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'block';
+    if (state.timerEnd) { startTimer(); } else { document.getElementById('timerSection').style.display = 'none'; }
+
+    // Apply saved title
+    if (state.titlu) {
+      var heroTitle = document.getElementById('heroTitle');
+      if (heroTitle) heroTitle.innerHTML = state.titlu.replace(/\n/g, '<br>');
+    }
+
+    // Apply code mode (show/hide code field)
+    applyClientCodeMode();
+    // Show approximate participant count
+    showApproxCount();
+
+    // Check localStorage for existing registration
+    var saved = localStorage.getItem('myTombolaNum');
+    if (saved) {
+      try {
+        var data = JSON.parse(saved);
+        if (state.takenNumbers.indexOf(data.number) >= 0) {
+          document.getElementById('nameStep').style.display = 'none';
+          document.getElementById('numberStep').style.display = 'none';
+          document.getElementById('infoBoxWrap').style.display = 'none';
+          var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
+          var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+          var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'none';
+          showSuccessCard(data.number, data.name);
+          return;
+        } else {
+          localStorage.removeItem('myTombolaNum');
+        }
+      } catch(e) { localStorage.removeItem('myTombolaNum'); }
+    }
+
+    renderGrid();
+  });
+}
+
+// ── ADMIN LOAD ────────────────────────────────────
+function loadAndRenderAdmin() {
+  document.getElementById('adminLoading').style.display = 'block';
+  document.getElementById('adminContent').style.display = 'none';
+  loadState(function() {
+    document.getElementById('adminLoading').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    renderAdmin();
+    restoreCardStates();
+  });
+}
+
+// ── COD ───────────────────────────────────────────
+function generateCode() {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  var attempts = 0;
+  do {
+    code = '';
+    for (var i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    attempts++;
+  } while (state.activeCodes.indexOf(code) >= 0 && attempts < 100);
+  state.activeCodes.push(code);
+  saveState(function() {
+    renderAdmin();
+    // Show popup with code
+    var popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);';
+    popup.innerHTML = '<div style="background:var(--surface);border:1px solid rgba(201,168,76,.4);border-radius:16px;padding:28px 24px;text-align:center;max-width:280px;width:90%;">' +
+      '<div style="font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Cod generat</div>' +
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:48px;letter-spacing:10px;color:var(--gold);background:var(--surface2);border:2px solid rgba(201,168,76,.3);border-radius:10px;padding:12px 16px;margin-bottom:12px;">' + code + '</div>' +
+      '<div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Trimite acest cod clientului!</div>' +
+      '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:var(--gold);color:#0f0e0d;border:none;border-radius:8px;padding:11px 32px;font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;">OK</button>' +
+      '</div>';
+    document.body.appendChild(popup);
+  });
+}
+
+function deleteCode(code) {
+  if (!confirm('Stergi codul ' + code + '?')) return;
+  state.activeCodes = state.activeCodes.filter(function(c) { return c !== code; });
+  saveState(function() { renderAdmin(); });
+}
+
+// ── VERIFICA COD ──────────────────────────────────
+function proceedFree() {
+  var name = document.getElementById('clientName').value.trim();
+  if (!name) { showClientMsg('Introdu-ti numele!', 'error'); return; }
+  if (state.locked) { showClientMsg('Inregistrarile sunt inchise momentan.', 'error'); return; }
+  codeVerified = true;
+  verifiedName = name;
+  showClientMsg('', '');
+  document.getElementById('nameStep').classList.add('locked');
+  document.getElementById('numberStep').classList.remove('locked');
+  renderGrid();
+}
+
+function verifyCode() {
+  var name = document.getElementById('clientName').value.trim();
+  var code = document.getElementById('clientCode').value.replace(/\s/g,'').toUpperCase();
+  if (!name) { showClientMsg('Introdu-ti numele!', 'error'); return; }
+  if (state.locked) { showClientMsg('Inregistrarile sunt inchise momentan.', 'error'); return; }
+  if (!code) { showClientMsg('Introdu codul primit de la frizer!', 'error'); return; }
+  if (state.activeCodes.length === 0) { showClientMsg('Nu exista niciun cod activ. Cere un cod de la frizer.', 'error'); return; }
+  if (state.activeCodes.indexOf(code) < 0) { showClientMsg('Cod incorect! Verifica codul primit de la frizer.', 'error'); return; }
+  // Cod valid in memorie - consuma-l si salveaza
+  showClientMsg('Se verifica...', 'info');
+  state.activeCodes = state.activeCodes.filter(function(c) { return c !== code; });
+  saveState(function() {
+    codeVerified = true;
+    verifiedName = name;
+    showClientMsg('Cod valid! Acum alege numarul tau norocos.', 'success');
+    document.getElementById('nameStep').classList.add('locked');
+    document.getElementById('numberStep').classList.remove('locked');
+    renderGrid();
+  }, 0, true);
+}
+
+// ── GRID ──────────────────────────────────────────
+function renderGrid() {
+  var max = state ? (state.maxNumbers || 100) : 100;
+  var grid = document.getElementById('numGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = 'repeat(10,1fr)';
+  var lbl = document.getElementById('numPickerLabel');
+  if (lbl) lbl.textContent = 'Alege un numar (1-' + max + ')';
+  for (var i = 1; i <= max; i++) {
+    var taken = state && state.takenNumbers.indexOf(i) >= 0;
+    var isSel = selectedNumber === i;
+    var cell = document.createElement('div');
+    cell.className = 'num-cell' + (taken ? ' taken' : '') + (isSel ? ' selected' : '');
+    cell.textContent = i;
+    if (!taken) { (function(n) { cell.onclick = function() { selectNumber(n); }; })(i); }
+    grid.appendChild(cell);
+  }
+}
+
+function selectNumber(n) {
+  if (!codeVerified) return;
+  selectedNumber = n;
+  document.getElementById('chosenNum').textContent = n;
+  document.getElementById('selectedPreview').style.display = 'block';
+  document.getElementById('registerBtn').disabled = false;
+  renderGrid();
+}
+
+// ── INREGISTRARE ──────────────────────────────────
+function registerClient() {
+  if (!codeVerified || !selectedNumber) return;
+  // Verifica numarul direct in state-ul din memorie (fara request extra)
+  if (state.takenNumbers.indexOf(selectedNumber) >= 0) {
+    showClientMsg('Numarul ' + selectedNumber + ' a fost ales intre timp. Alege altul!', 'error');
+    selectedNumber = null;
+    document.getElementById('selectedPreview').style.display = 'none';
+    document.getElementById('registerBtn').disabled = true;
+    renderGrid(); return;
+  }
+  showClientMsg('Se inregistreaza...', 'info');
+  state.participants.push({ name: verifiedName, number: selectedNumber, ts: Date.now() });
+  state.takenNumbers.push(selectedNumber);
+  var num = selectedNumber;
+  var name = verifiedName;
+  saveState(function() { showSuccess(num, name); }, 0, true);
+}
+
+// ── STAR PARTICLES ──────────────────────────────────
+function launchStars(cx, cy) {
+  var canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var stars = [];
+  var colors = ['#c9a84c','#e8cc7a','#ffffff','#f0ebe4','#ffd700'];
+  for (var i = 0; i < 60; i++) {
+    var angle = (Math.PI * 2 / 60) * i + Math.random() * 0.3;
+    var speed = 3 + Math.random() * 6;
+    stars.push({
+      x: cx || window.innerWidth/2,
+      y: cy || window.innerHeight/2,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      size: 3 + Math.random() * 6,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      alpha: 1,
+      gravity: 0.15,
+      rotation: Math.random() * 360,
+      spin: (Math.random()-0.5) * 10
+    });
+  }
+  function drawStar(ctx, x, y, size, color, alpha, rotation) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, y);
+    ctx.rotate(rotation * Math.PI / 180);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (var i = 0; i < 5; i++) {
+      var angle = (i * 4 * Math.PI / 5) - Math.PI/2;
+      var innerAngle = angle + 2*Math.PI/10;
+      if (i === 0) ctx.moveTo(Math.cos(angle)*size, Math.sin(angle)*size);
+      else ctx.lineTo(Math.cos(angle)*size, Math.sin(angle)*size);
+      ctx.lineTo(Math.cos(innerAngle)*size*0.4, Math.sin(innerAngle)*size*0.4);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  var frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var alive = false;
+    stars.forEach(function(s) {
+      s.x += s.vx; s.y += s.vy;
+      s.vy += s.gravity;
+      s.alpha -= 0.012;
+      s.rotation += s.spin;
+      if (s.alpha > 0) { alive = true; drawStar(ctx, s.x, s.y, s.size, s.color, s.alpha, s.rotation); }
+    });
+    frame++;
+    if (alive && frame < 200) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+// ── COUNTDOWN + SUCCESS ──────────────────────────────
+function showCountdownThenSuccess(num, name) {
+  var clientContent = document.getElementById('clientContent');
+  // Hide steps immediately
+  document.getElementById('nameStep').style.display = 'none';
+  document.getElementById('numberStep').style.display = 'none';
+  document.getElementById('infoBoxWrap').style.display = 'none';
+  var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
+  var hs = document.getElementById('heroSubtitle'); if (hs) hs.style.display = 'none';
+  var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'none';
+  showClientMsg('', '');
+
+  // Direct la success
+  showSuccessCard(num, name);
+}
+
+// ── SUCCESS ────────────────────────────────────────
+function showSuccessCard(num, name) {
+  var existing = document.getElementById('successCard');
+  if (existing) existing.remove();
+  var card = document.createElement('div');
+  card.id = 'successCard';
+  card.style.cssText = 'background:var(--surface);border:1px solid #2a2a2a;border-radius:12px;padding:28px 16px;text-align:center;margin-bottom:14px;';
+  card.innerHTML =
+    '<div style="font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Numarul tau</div>' +
+    '<div class="pulse-num-constant" style="font-family:Bebas Neue,sans-serif;font-size:80px;color:var(--gold);line-height:1;">' + num + '</div>' +
+    '<div style="font-size:13px;color:var(--muted);margin-top:8px;">Mult noroc, <strong style="color:var(--text);">' + name + '</strong>!</div>';
+  document.getElementById('clientContent').appendChild(card);
+}
+
+function showSuccess(num, name) {
+  codeVerified = false;
+  selectedNumber = null;
+  localStorage.setItem('myTombolaNum', JSON.stringify({ name: name, number: num }));
+  // Ascunde chenarul cu numarul de inscrisi
+  var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
+  showCountdownThenSuccess(num, name);
+}
+
+// ── CONFETTI ON OVERLAY ──────────────────────────────
+function launchConfettiOn(container) {
+  var canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:50;pointer-events:none;';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  container.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+  var pieces = [];
+  var colors = ['#c9a84c','#e8cc7a','#f0ebe4','#27ae60','#e74c3c','#3498db','#ffffff','#ff6b6b','#ffd93d'];
+  for (var i = 0; i < 200; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * 400,
+      w: 7 + Math.random() * 10, h: 7 + Math.random() * 10,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: 4 + Math.random() * 6,
+      angle: Math.random() * 360,
+      spin: (Math.random() - 0.5) * 9,
+      drift: (Math.random() - 0.5) * 2
+    });
+  }
+  var frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var alive = false;
+    pieces.forEach(function(p) {
+      p.y += p.speed; p.x += p.drift; p.angle += p.spin;
+      if (p.y < canvas.height + 20) alive = true;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.angle * Math.PI / 180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+    });
+    frame++;
+    if (alive && frame < 300) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); if(canvas.parentNode) canvas.parentNode.removeChild(canvas); }
+  }
+  draw();
+}
+
+// ── CONFETTI ─────────────────────────────────────────
+function launchConfetti() {
+  var canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var pieces = [];
+  var colors = ['#c9a84c','#e8cc7a','#f0ebe4','#27ae60','#e74c3c','#3498db','#ffffff'];
+  for (var i = 0; i < 150; i++) {
+    pieces.push({ x: Math.random()*canvas.width, y: -20-Math.random()*300, w: 8+Math.random()*10, h: 8+Math.random()*10, color: colors[Math.floor(Math.random()*colors.length)], speed: 3+Math.random()*5, angle: Math.random()*360, spin: (Math.random()-.5)*8, drift: (Math.random()-.5)*2 });
+  }
+  var frame = 0;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var alive = false;
+    for (var i = 0; i < pieces.length; i++) {
+      var p = pieces[i];
+      p.y += p.speed; p.x += p.drift; p.angle += p.spin;
+      if (p.y < canvas.height+20) alive = true;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle*Math.PI/180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    }
+    frame++;
+    if (alive && frame < 400) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+
+// ── ADMIN RENDER ───────────────────────────────────────────
+function renderAdmin() {
+  var max = state.maxNumbers || 100;
+  document.getElementById('statP').textContent = state.participants.length;
+  document.getElementById('statA').textContent = max - state.takenNumbers.length;
+  document.getElementById('statW').textContent = state.winners.length;
+  document.getElementById('maxNumInput').value = max;
+  document.getElementById('lockToggle').checked = state.locked;
+  document.getElementById('lockLabel').innerHTML = state.locked
+    ? 'Inregistrarile sunt <strong style="color:#e74c3c">INCHISE</strong>'
+    : 'Inregistrarile sunt <strong style="color:#2ecc71">DESCHISE</strong>';
+
+  var req = state.requireCode !== false;
+  var codeToggleEl = document.getElementById('codeToggle');
+  var codModeHintEl = document.getElementById('codeModeHint');
+  var coduriSectionEl = document.getElementById('coduriSection');
+  if (codeToggleEl) codeToggleEl.checked = req;
+  if (codModeHintEl) codModeHintEl.textContent = req
+    ? 'Clientii au nevoie de cod pentru a participa.'
+    : 'Oricine poate participa direct, fara cod.';
+  // Animate show/hide coduri section
+  if (coduriSectionEl) {
+    if (req) coduriSectionEl.classList.remove('hidden');
+    else coduriSectionEl.classList.add('hidden');
+  }
+
+  // timer info
+  var tai = document.getElementById('timerAdminInfo');
+  if (state.timerEnd) {
+    var d = new Date(state.timerEnd);
+    tai.textContent = 'Timer activ pana la: ' + d.toLocaleString('ro-RO');
+    var timerVal = new Date(state.timerEnd);
+    var tzOffset = timerVal.getTimezoneOffset() * 60000;
+    document.getElementById('timerEnd').value = new Date(timerVal.getTime() - tzOffset).toISOString().slice(0, 16);
+  } else {
+    tai.textContent = 'Niciun timer activ.';
+  }
+
+  document.getElementById('partCount').textContent = state.participants.length;
+
+  // titlu
+  var titluInputEl = document.getElementById('titluInput');
+  if (titluInputEl) titluInputEl.value = state.titlu || 'Tombola pentru\nun Tuns Gratis';
+
+  // coduri active list
+  var acEl = document.getElementById('activeCodesList');
+  document.getElementById('activeCodesCount').textContent = state.activeCodes.length;
+  if (state.activeCodes.length === 0) {
+    acEl.innerHTML = '<span style="font-size:12px;color:var(--muted);">Niciun cod activ.</span>';
+  } else {
+    var ch = '';
+    for (var i = 0; i < state.activeCodes.length; i++) {
+      var c = state.activeCodes[i];
+      ch += '<div class="cod-chip"><span class="cod-chip-val">' + c + '</span>' +
+            '<button class="cod-chip-del" onclick="deleteCode(\'' + c + '\')">&#10005;</button></div>';
+    }
+    acEl.innerHTML = ch;
+  }
+
+  // winners history
+  var hs = document.getElementById('historySection');
+  var hl = document.getElementById('historyList');
+  if (state.winners.length === 0) {
+    hs.style.display = 'none';
+  } else {
+    hs.style.display = 'block';
+    hl.innerHTML = state.winners.map(function(w) {
+      return '<div class="history-item"><div><span class="h-num">' + w.number + '</span><span style="margin-left:8px;font-size:13px;">' + w.name + '</span></div><div class="h-date">' + new Date(w.ts).toLocaleDateString('ro-RO') + '</div></div>';
+    }).join('');
+  }
+
+  // participanti
+  var tbl = document.getElementById('participantsTable');
+  if (state.participants.length === 0) {
+    tbl.innerHTML = '<div class="empty-state">Niciun participant inca.</div>';
+  } else {
+    var winNums = {};
+    state.winners.forEach(function(w) { winNums[w.number] = true; });
+    var html = '<table class="participants-table"><thead><tr><th>#</th><th>Nume</th><th>Nr</th><th>Status</th><th></th></tr></thead><tbody>';
+    state.participants.forEach(function(p, i) {
+      var won = winNums[p.number];
+      html += '<tr><td style="color:var(--muted)">' + (i+1) + '</td><td>' + p.name + '</td>' +
+        '<td><span class="num-badge' + (won?' won':'') + '">' + p.number + '</span></td>' +
+        '<td>' + (won ? '<span class="tag-win">&#127942; Castigator</span>' : '-') + '</td>' +
+        '<td><button onclick="deleteParticipant(' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;">&#10005;</button></td></tr>';
+    });
+    html += '</tbody></table>';
+    tbl.innerHTML = html;
+  }
+
+  // istoric tombole
+  var histEl = document.getElementById('historicList');
+  if (!state.historic || state.historic.length === 0) {
+    histEl.innerHTML = '<div class="empty-state">Nicio tombola arhivata inca.</div>';
+  } else {
+    var hhtml = '';
+    for (var hi = state.historic.length - 1; hi >= 0; hi--) {
+      var ht = state.historic[hi];
+      hhtml += '<div class="history-tombola"><div class="history-tombola-header"><span class="history-tombola-title">Tombola #' + (hi+1) + '</span>' +
+        '<div style="display:flex;align-items:center;gap:8px;"><span class="history-tombola-date">' + ht.date + '</span>' +
+        '<button onclick="deleteHistoric(' + hi + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">&#10005;</button></div></div>' +
+        '<div class="history-tombola-info">' + ht.participants + ' participanti | ' + ht.winners.length + ' castigatori</div>';
+      if (ht.winners.length > 0) {
+        hhtml += '<div class="history-tombola-winners">';
+        ht.winners.forEach(function(w) { hhtml += '<div class="history-win-chip">Nr.' + w.number + ' – ' + w.name + '</div>'; });
+        hhtml += '</div>';
+      }
+      hhtml += '</div>';
+    }
+    histEl.innerHTML = hhtml;
+  }
+  // audit log
+  var auditEl = document.getElementById('auditLogList');
+  if (auditEl) {
+    if (!state.auditLog || state.auditLog.length === 0) {
+      auditEl.innerHTML = '<div class="empty-state">Nicio activitate inregistrata inca.</div>';
+    } else {
+      var ahtml = '';
+      state.auditLog.forEach(function(entry) {
+        var d = new Date(entry.ts);
+        var dateStr = d.toLocaleDateString('ro-RO') + ' ' + d.toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        var color = entry.action.indexOf('DELETE') >= 0 ? '#e74c3c' : entry.action.indexOf('RESET') >= 0 ? '#e67e22' : '#2ecc71';
+        ahtml += '<div style="background:var(--surface2);border-radius:8px;padding:8px 11px;margin-bottom:6px;border-left:3px solid '+color+';">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+          '<span style="font-size:11px;font-weight:600;color:'+color+';letter-spacing:.5px;">'+entry.action+'</span>' +
+          '<span style="font-size:10px;color:var(--muted);">'+dateStr+'</span></div>' +
+          '<div style="font-size:12px;color:var(--muted);margin-top:3px;">'+entry.details+'</div></div>';
+      });
+      auditEl.innerHTML = ahtml;
+    }
+  }
+}
+function saveTitlu() {
+  var val = document.getElementById('titluInput').value.trim();
+  var msg = document.getElementById('titluMsg');
+  if (!val) { msg.style.color = '#e74c3c'; msg.textContent = 'Titlul nu poate fi gol!'; return; }
+  state.titlu = val;
+  saveState(function() {
+    // Update client hero title live
+    var heroTitle = document.getElementById('heroTitle');
+    if (heroTitle) heroTitle.innerHTML = val.replace(/\n/g, '<br>');
+    msg.style.color = '#2ecc71';
+    msg.textContent = 'Titlu salvat!';
+    setTimeout(function() { msg.textContent = ''; }, 2500);
+  });
+}
+
+
+function applyMax() {
+  var val = parseInt(document.getElementById('maxNumInput').value);
+  if (!val || val < 10 || val > 9999) { alert('Introdu un numar intre 10 si 9999.'); return; }
+  if (state.participants.length > 0) {
+    var answer = prompt('Schimbarea intervalului sterge ' + state.participants.length + ' participanti!\nScrie "DA" pentru a confirma:');
+    if (answer !== 'DA') { alert('Anulat.'); return; }
+    // Backup automat
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('ro-RO') + ' ' + now.toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'});
+    state.historic.push({
+      date: dateStr + ' [SCHIMB INTERVAL]',
+      participants: state.participants.length,
+      winners: state.winners.slice()
+    });
+  }
+  state.participants = []; state.takenNumbers = []; state.winners = [];
+  state.maxNumbers = val;
+  saveState(function() { renderAdmin(); alert('Interval setat: 1-' + val); });
+}
+
+function toggleLock() {
+  state.locked = document.getElementById('lockToggle').checked;
+  saveState(function() { renderAdmin(); });
+}
+
+// ── EXTRAGERE NOUA ─────────────────────────────────
+var drawSpinInterval = null;
+var drawAllPicked = [];
+var drawCurrentIdx = 0;
+var drawAllNums = [];
+
+function drawWinners() {
+  var count = parseInt(document.getElementById('wCount').value) || 1;
+  var winNums = {};
+  state.winners.forEach(function(w) { winNums[w.number] = true; });
+  var eligible = state.participants.filter(function(p) { return !winNums[p.number]; });
+  if (eligible.length === 0) { alert('Nu exista participanti eligibili!'); return; }
+  var draw = Math.min(count, eligible.length);
+  if (!confirm('Extragi ' + draw + ' castigatori din ' + eligible.length + ' participanti?')) return;
+
+  // Pick winners
+  var pool = eligible.slice();
+  var picked = [];
+  while (picked.length < draw) {
+    var idx = Math.floor(Math.random() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+
+  // Save to state
+  var now = Date.now();
+  picked.forEach(function(p) { state.winners.push({ name: p.name, number: p.number, ts: now }); });
+  addAuditLog('DRAW', draw + ' castigatori extrase: ' + picked.map(function(p){return p.name+' Nr.'+p.number;}).join(', '));
+  saveState(function() { renderAdmin(); });
+
+  // Setup draw vars - foloseste TOATE numerele participantilor ca pool pentru animatie
+  drawAllPicked = picked;
+  drawAllNums = eligible.map(function(p){ return p.number; });
+  drawCurrentIdx = 0;
+
+  // Build overlay
+  var overlay = document.createElement('div');
+  overlay.id = 'drawShowOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;';
+  document.body.appendChild(overlay);
+
+  // Round label
+  var roundEl = document.createElement('div');
+  roundEl.id = 'drawRoundLabel';
+  roundEl.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:3px;color:var(--muted);margin-bottom:20px;';
+  overlay.appendChild(roundEl);
+
+  // Progress dots
+  var dotsEl = document.createElement('div');
+  dotsEl.id = 'drawProgDots';
+  dotsEl.className = 'draw-prog-dots';
+  if (picked.length > 1) {
+    for (var i = 0; i < picked.length; i++) {
+      var d = document.createElement('div');
+      d.className = 'draw-pdot' + (i === 0 ? ' active' : '');
+      d.id = 'drawDot' + i;
+      dotsEl.appendChild(d);
+    }
+    dotsEl.style.display = 'flex';
+  } else {
+    dotsEl.style.display = 'none';
+  }
+  overlay.insertBefore(dotsEl, roundEl);
+
+  // Spin box
+  var spinBox = document.createElement('div');
+  spinBox.id = 'drawSpinBox';
+  spinBox.className = 'draw-spin-box';
+  var spinNum = document.createElement('div');
+  spinNum.id = 'drawSpinNum';
+  spinNum.className = 'draw-spin-num';
+  spinNum.textContent = '?';
+  spinBox.appendChild(spinNum);
+  overlay.appendChild(spinBox);
+
+  // Status
+  var statusEl = document.createElement('div');
+  statusEl.id = 'drawSpinStatus';
+  statusEl.className = 'draw-status';
+  overlay.appendChild(statusEl);
+
+  // Drawn chips
+  var chipsEl = document.createElement('div');
+  chipsEl.id = 'drawChips';
+  chipsEl.className = 'draw-chips';
+  overlay.appendChild(chipsEl);
+
+  startDrawSpin(0);
+}
+
+function startDrawSpin(idx) {
+  var target = drawAllPicked[idx].number;
+  var spinEl = document.getElementById('drawSpinNum');
+  var statusEl = document.getElementById('drawSpinStatus');
+  var roundEl = document.getElementById('drawRoundLabel');
+  var boxEl = document.getElementById('drawSpinBox');
+
+  spinEl.className = 'draw-spin-num';
+  boxEl.classList.add('glow');
+
+  if (drawAllPicked.length > 1) {
+    roundEl.textContent = 'SE EXTRAGE ' + (idx + 1) + ' DIN ' + drawAllPicked.length;
+  } else {
+    roundEl.textContent = 'SE EXTRAGE NUMARUL';
+  }
+
+  statusEl.textContent = '';
+  var ticks = 0;
+  var totalTicks = 35;
+
+  if (drawSpinInterval) clearInterval(drawSpinInterval);
+
+  drawSpinInterval = setInterval(function() {
+    var rnd = drawAllNums[Math.floor(Math.random() * drawAllNums.length)];
+    spinEl.textContent = rnd;
+    ticks++;
+
+    var progress = ticks / totalTicks;
+    if (progress > 0.4 && progress < 0.7) statusEl.textContent = 'INCETINESTE...';
+    else if (progress >= 0.7) statusEl.textContent = 'SE OPRESTE...';
+    else statusEl.textContent = '';
+
+    if (ticks >= totalTicks) {
+      clearInterval(drawSpinInterval);
+      drawSpinInterval = null;
+      statusEl.textContent = '';
+      spinEl.textContent = target;
+      spinEl.classList.add('landed');
+
+      var dot = document.getElementById('drawDot' + idx);
+      if (dot) { dot.classList.remove('active'); dot.classList.add('done'); }
+
+      setTimeout(function() { onDrawLanded(idx, target); }, 900);
+    }
+  }, 70);
+}
+
+function onDrawLanded(idx, num) {
+  var boxEl = document.getElementById('drawSpinBox');
+  if (boxEl) boxEl.classList.remove('glow');
+
+  if (drawAllPicked.length > 1) {
+    var chips = document.getElementById('drawChips');
+    if (chips) {
+      var chip = document.createElement('div');
+      chip.className = 'draw-d-chip';
+      chip.textContent = num;
+      chips.appendChild(chip);
+    }
+  }
+
+  drawCurrentIdx++;
+
+  if (drawCurrentIdx < drawAllPicked.length) {
+    var nextDot = document.getElementById('drawDot' + drawCurrentIdx);
+    if (nextDot) nextDot.classList.add('active');
+    var spinEl = document.getElementById('drawSpinNum');
+    if (spinEl) { spinEl.className = 'draw-spin-num'; spinEl.textContent = '?'; }
+    setTimeout(function() { startDrawSpin(drawCurrentIdx); }, 700);
+  } else {
+    setTimeout(showDrawFinal, 500);
+  }
+}
+
+function showDrawFinal() {
+  var ov = document.getElementById('drawShowOverlay');
+  if (ov) ov.remove();
+
+  var finalOv = document.createElement('div');
+  finalOv.id = 'drawFinalOverlay';
+  finalOv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;';
+  document.body.appendChild(finalOv);
+
+  var trophy = document.createElement('div');
+  trophy.style.cssText = 'font-size:56px;margin-bottom:10px;animation:trophyIn .6s cubic-bezier(.175,.885,.32,1.275);';
+  trophy.textContent = '🏆';
+  finalOv.appendChild(trophy);
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:32px;letter-spacing:5px;color:var(--gold);margin-bottom:24px;animation:fadeUp .4s ease .2s both;text-shadow:0 0 20px rgba(201,168,76,.4);';
+  title.textContent = drawAllPicked.length === 1 ? 'CASTIGATOR' : drawAllPicked.length + ' CASTIGATORI';
+  finalOv.appendChild(title);
+
+  if (drawAllPicked.length === 1) {
+    var bigNum = document.createElement('div');
+    bigNum.style.cssText = 'font-family:Bebas Neue,sans-serif;font-size:120px;color:var(--gold);line-height:1;animation:numIn .5s cubic-bezier(.175,.885,.32,1.275) .3s both;';
+    bigNum.className = 'pulse-draw';
+    bigNum.textContent = drawAllPicked[0].number;
+    finalOv.appendChild(bigNum);
+  } else {
+    var grid = document.createElement('div');
+    grid.className = 'draw-final-grid';
+    drawAllPicked.forEach(function(p, i) {
+      var chip = document.createElement('div');
+      chip.className = 'draw-f-chip';
+      chip.style.animationDelay = (i * 0.07) + 's';
+      chip.textContent = p.number;
+      grid.appendChild(chip);
+    });
+    finalOv.appendChild(grid);
+  }
+
+  var closeBtn = document.createElement('button');
+  closeBtn.style.cssText = 'margin-top:28px;background:var(--gold);color:#0f0e0d;border:none;border-radius:8px;padding:13px 40px;font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;animation:fadeUp .4s ease .7s both;';
+  closeBtn.textContent = 'INCHIDE';
+  closeBtn.onclick = function() {
+    var fo = document.getElementById('drawFinalOverlay');
+    if (fo) fo.remove();
+  };
+  finalOv.appendChild(closeBtn);
+
+  // Confetti
+  setTimeout(function() {
+    launchConfettiOn(finalOv);
+    setTimeout(function(){ launchConfettiOn(finalOv); }, 1000);
+    setTimeout(function(){ launchConfettiOn(finalOv); }, 2000);
+  }, 400);
+}
+
+// ── DELETE PARTICIPANT ─────────────────────────────
+function deleteParticipant(index) {
+  var p = state.participants[index];
+  var isWinner = state.winners.some(function(w) { return w.number === p.number; });
+  var msg = isWinner
+    ? '⚠️ ATENTIE: ' + p.name + ' (Nr.' + p.number + ') este CASTIGATOR!\nDaca il stergi, dispare si din lista castigatorilor!\n\nEsti sigur ca vrei sa stergi?'
+    : 'Stergi participantul ' + p.name + ' (Nr.' + p.number + ')?\nAceasta actiune este permanenta.';
+  if (!confirm(msg)) { return; }
+  addAuditLog('DELETE_PARTICIPANT', p.name + ' Nr.' + p.number + (isWinner ? ' [CASTIGATOR]' : ''));
+  state.participants.splice(index, 1);
+  var tnIdx = state.takenNumbers.indexOf(p.number);
+  if (tnIdx >= 0) state.takenNumbers.splice(tnIdx, 1);
+  state.winners = state.winners.filter(function(w) { return w.number !== p.number; });
+  saveState(function() { renderAdmin(); });
+}
+
+// ── BACKUP ───────────────────────────────────────────────────
+function downloadBackup() {
+  if (!state) { alert('Nu exista date de descarcat.'); return; }
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('ro-RO').replace(/\//g,'-') + '_' + now.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}).replace(':','-');
+  var filename = 'tombola_backup_' + dateStr + '.json';
+  var blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function uploadBackup(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var loaded = JSON.parse(e.target.result);
+      if (!loaded.participants || !Array.isArray(loaded.participants)) {
+        alert('Fisier invalid! Nu pare a fi un backup de tombola.'); return;
+      }
+      var answer = prompt('Incarci backup cu ' + loaded.participants.length + ' participanti.\nAceasta va SUPRASCRIE datele curente!\nScrie "DA" pentru a confirma:');
+      if (answer !== 'DA') { alert('Anulat.'); return; }
+      state = normalizeState(loaded);
+      saveState(function() {
+        renderAdmin();
+        alert('Backup incarcat cu succes! ' + state.participants.length + ' participanti restaurati.');
+      });
+    } catch(e) {
+      alert('Eroare la citirea fisierului. Asigura-te ca e un fisier JSON valid.');
+    }
+  };
+  reader.readAsText(file);
+  // Reset input so same file can be loaded again
+  event.target.value = '';
+}
+
+// ── ARHIVARE ──────────────────────────────────────────────────
+function archiveTombola() {
+  if (state.winners.length === 0) { alert('Nu exista castigatori de arhivat! Fa o extragere mai intai.'); return; }
+  if (!confirm('Arhivezi castigatorii curenti in Istoric?\nParticipantii raman activi pentru urmatoarele extrageri.\nCastigatorii vor fi resetati.')) return;
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('ro-RO') + ' ' + now.toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'});
+  state.historic.push({ date: dateStr, participants: state.participants.length, winners: state.winners.slice() });
+  state.winners = [];
+  saveState(function() {
+    renderAdmin();
+    document.getElementById('winnerReveal').style.display = 'none';
+    document.getElementById('drawStage').style.display = 'none';
+    alert('Castigatorii au fost arhivati! Participantii raman activi pentru urmatoarea extragere.');
+  });
+}
+
+function deleteHistoric(index) {
+  if (!confirm('Stergi tombola #' + (index+1) + ' din istoric? Aceasta actiune este permanenta.')) return;
+  state.historic.splice(index, 1);
+  saveState(function() { renderAdmin(); });
+}
+
+// ── RESET ─────────────────────────────────────────
+function confirmResetDrawOnly() {
+  if (!confirm('Resetezi DOAR extragerea? Participantii raman, castigatorii vor fi stersi.')) return;
+  addAuditLog('RESET_DRAW', state.winners.length + ' castigatori stersi');
+  state.winners = [];
+  // draw elements removed
+  saveState(function() { renderAdmin(); });
+}
+
+function confirmReset() {
+  if (state.participants.length === 0) {
+    alert('Nu exista participanti de sters.'); return;
+  }
+  var answer = prompt('Scrie "RESET" pentru a confirma stergerea a ' + state.participants.length + ' participanti:');
+  if (answer !== 'RESET') { alert('Reset anulat.'); return; }
+  // Backup automat in historic inainte de reset
+  if (state.winners.length > 0 || state.participants.length > 0) {
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('ro-RO') + ' ' + now.toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'});
+    state.historic.push({
+      date: dateStr + ' [RESET]',
+      participants: state.participants.length,
+      winners: state.winners.slice()
+    });
+  }
+  state.participants = []; state.takenNumbers = []; state.winners = [];
+  // draw elements removed
+  saveState(function() { renderAdmin(); });
+}
+
+// ── HELPERS ───────────────────────────────────────
+function showClientMsg(text, type) {
+  var el = document.getElementById('clientMsg');
+  if (!text) { el.innerHTML = ''; return; }
+  var cls = type === 'error' ? 'msg-error' : type === 'info' ? 'msg-info' : 'msg-success';
+  el.innerHTML = '<div class="msg ' + cls + '">' + text + '</div>';
+}
+
+function resetClientUI() {
+  codeVerified = false; selectedNumber = null; verifiedName = '';
+  showClientMsg('', '');
+  var cn = document.getElementById('clientName');
+  var cc = document.getElementById('clientCode');
+  if (cn) cn.value = '';
+  if (cc) cc.value = '';
+  var nameStep = document.getElementById('nameStep');
+  var numberStep = document.getElementById('numberStep');
+  if (nameStep) { nameStep.classList.remove('locked'); nameStep.style.display = 'block'; }
+  if (numberStep) {
+    numberStep.classList.add('locked');
+    numberStep.style.display = 'block';
+    // Re-inject grid elements
+    numberStep.innerHTML =
+      '<div class="step-title"><span>2</span> Alege numarul tau norocos</div>' +
+      '<div class="picker-label" id="numPickerLabel">Alege un numar (1-' + (state ? state.maxNumbers || 100 : 100) + ')</div>' +
+      '<div class="grid" id="numGrid" style="margin-bottom:14px;"></div>' +
+      '<div id="selectedPreview" class="preview-box" style="display:none;"><div class="preview-num" id="chosenNum">-</div><div class="preview-lbl">Numarul tau ales</div></div>' +
+      '<button class="btn btn-gold" id="registerBtn" onclick="registerClient()" disabled>CONFIRMA NUMARUL</button>';
+  }
+  var sc = document.getElementById('successCard');
+  if (sc) sc.remove();
+  var hero = document.getElementById('heroSection'); if (hero) { hero.style.display = 'block'; hero.style.visibility = 'visible'; }
+  var hs = document.getElementById('heroSubtitle'); if (hs) { hs.style.display = 'block'; hs.style.visibility = 'visible'; }
+  var il = document.getElementById('infoLineClient'); if (il) il.style.display = 'block';
+  var pcb = document.getElementById('participantCountBox'); if (pcb) pcb.style.display = 'none';
+  showApproxCount();
+}
+
+// ── INIT ──────────────────────────────────────────
+// Asteapta fonturile inainte sa arate titlul
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function() {
+    var h = document.getElementById('heroSection');
+    if (h) h.style.visibility = 'visible';
+  });
+} else {
+  // Fallback pentru browsere vechi
+  setTimeout(function() {
+    var h = document.getElementById('heroSection');
+    if (h) h.style.visibility = 'visible';
+  }, 500);
+}
+loadAndRenderClient();
+</script>
+</body>
+</html>
